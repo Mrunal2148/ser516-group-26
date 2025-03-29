@@ -39,4 +39,23 @@
     background-color: #ccc;
     cursor: not-allowed;
   }
+
+  .multi-select {
+    margin-top: 15px;
+    padding-bottom: 15px;
+  }
+  
+  .metric-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .checkbox {
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+    gap: 9px;
+  }
+  
   

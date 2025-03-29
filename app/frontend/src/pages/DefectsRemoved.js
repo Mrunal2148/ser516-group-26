@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import "../components/css/DefectsRemoved.css";
 import DefectMetricsChart from "../components/DefectMetricsChart";
 import DefectsHistoryPercentageTrend from "../components/DefectsHistoryPercentageTrend";
-import DefectsBenchmarkTrend from "../components/DefectsBenchmarkTrend";
 import Benchmarks from "../components/Benchmarks";
 
 const DefectsRemoved = () => {
@@ -12,7 +11,6 @@ const DefectsRemoved = () => {
 
   const [bugStats, setBugStats] = useState(null);
   const [error, setError] = useState(null);
-  const [selectedGraph, setSelectedGraph] = useState("");
   const [showBenchmarkModal, setShowBenchmarkModal] = useState(false);
 
   useEffect(() => {
@@ -33,6 +31,23 @@ const DefectsRemoved = () => {
           setError("No defect data available for this repository.");
           return;
         }
+
+        // 1. Gather all "year-week" keys
+        const openedKeys = Object.keys(data.weeklyOpenedBugs || {});
+        const closedKeys = Object.keys(data.weeklyClosedBugs || {});
+        const allKeys = [...new Set([...openedKeys, ...closedKeys])];
+
+        // 2. Sort them numerically by year, then week
+        allKeys.sort((a, b) => {
+          const [yearA, wA] = a.split("-W");
+          const [yearB, wB] = b.split("-W");
+          return parseInt(yearA) - parseInt(yearB) || parseInt(wA) - parseInt(wB);
+        });
+
+        // 3. Earliest is startWeek, latest is endWeek
+        data.startWeek = allKeys[0] ?? "N/A";
+        data.endWeek = allKeys[allKeys.length - 1] ?? "N/A";
+
         setBugStats(data);
         setError(null);
       })
@@ -41,28 +56,8 @@ const DefectsRemoved = () => {
 
   const githubUrl = owner && repo ? `https://github.com/${owner}/${repo}` : "";
 
-  
-  const sortWeeks = (weeks) => {
-    return weeks
-      .map((week) => {
-        const [year, weekNum] = week.split("-W").map(Number);
-        return { week, year, weekNum };
-      })
-      .sort((a, b) => a.year - b.year || a.weekNum - b.weekNum)
-      .map((obj) => obj.week);
-  };
-
-  
-  const sortedOpenedWeeks =
-    bugStats?.weeklyOpenedBugs ? sortWeeks(Object.keys(bugStats.weeklyOpenedBugs)) : [];
-  const sortedClosedWeeks =
-    bugStats?.weeklyClosedBugs ? sortWeeks(Object.keys(bugStats.weeklyClosedBugs)) : [];
-
-  const startWeek = sortedOpenedWeeks.length > 0 ? sortedOpenedWeeks[0] : "N/A";
-  const endWeek = sortedClosedWeeks.length > 0 ? sortedClosedWeeks[sortedClosedWeeks.length - 1] : "N/A";
-
   return (
-    <div className="defects-container">
+    <div className="defects-container card">
       <h2 className="code-comment-title">Defects Removed Metrics</h2>
 
       {githubUrl && (
@@ -91,28 +86,16 @@ const DefectsRemoved = () => {
               <tr>
                 <td>{bugStats.totalOpenedBugs || 0}</td>
                 <td>{bugStats.totalClosedBugs || 0}</td>
-                <td>{startWeek}</td>
-                <td>{endWeek}</td>
+                <td>{bugStats.startWeek}</td>
+                <td>{bugStats.endWeek}</td>
               </tr>
             </tbody>
           </table>
 
           
-          <div className="chart-dropdown-container">
-            <div className="dropdown-section">
-              <select onChange={(e) => setSelectedGraph(e.target.value)} className="chart-select">
-                <option value="">Select Graph Type</option>
-                <option value="defectMetrics">Defect Metrics Chart</option>
-                <option value="percentageTrend">Percentage Trend Over Time</option>
-                <option value="DefectsBenchmarkTrend">Defects Benchmark Trend</option>
-              </select>
-            </div>
-          </div>
-
-         
           <div className="benchmark-section">
-            <button 
-              className="add-benchmark-button" 
+            <button
+              className="add-benchmark-button"
               onClick={() => setShowBenchmarkModal(true)}
             >
               Add Benchmark
@@ -120,19 +103,29 @@ const DefectsRemoved = () => {
           </div>
 
           
-          {selectedGraph && (
-            <div className="graph-container">
-              {selectedGraph === "defectMetrics" && <DefectMetricsChart data={bugStats} />}
-              {selectedGraph === "percentageTrend" && <DefectsHistoryPercentageTrend githubUrl={githubUrl} />}
-              {selectedGraph === "DefectsBenchmarkTrend" && <DefectsBenchmarkTrend githubUrl={githubUrl} />}
+          <div className="graph-container">
+            <div className="graph-section">
+              <h3>Defect Metrics Chart</h3>
+              <DefectMetricsChart data={bugStats} />
             </div>
-          )}
+
+            <div className="graph-section">
+              <h3>Defects Removed Percentage Angainst Benchmark Trend</h3>
+              <DefectsHistoryPercentageTrend githubUrl={githubUrl} />
+            </div>
+
+          </div>
 
           
           {showBenchmarkModal && (
             <div className="benchmark-modal">
               <div className="benchmark-modal-content">
-                <button className="close-modal" onClick={() => setShowBenchmarkModal(false)}>X</button>
+                <button
+                  className="close-modal"
+                  onClick={() => setShowBenchmarkModal(false)}
+                >
+                  X
+                </button>
                 <Benchmarks githubUrl={githubUrl} selectedMetric="defects-removed" />
               </div>
             </div>

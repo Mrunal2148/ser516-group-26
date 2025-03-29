@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } fro
 
 const CoverageChart = ({ chartData }) => {
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData}>
                 <XAxis dataKey="name" />
                 <YAxis />

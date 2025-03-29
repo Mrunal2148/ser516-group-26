@@ -1,0 +1,79 @@
+[
+    {
+        "repo_url": "https://github.com/mrunal2148/rca-app",
+        "total_lines": 734,
+        "comment_lines": 2,
+        "coverage": 0.2724795640326975,
+        "timestamp": "2025-03-01T15:48:04.096906"
+    },
+    {
+        "repo_url": "https://github.com/mrunal2148/rca-app",
+        "total_lines": 734,
+        "comment_lines": 2,
+        "coverage": 0.2724795640326975,
+        "timestamp": "2025-03-01T15:48:26.921819"
+    },
+    {
+        "repo_url": "https://github.com/mrunal2148/rca-app",
+        "total_lines": 734,
+        "comment_lines": 2,
+        "coverage": 0.2724795640326975,
+        "timestamp": "2025-03-01T15:49:01.561589"
+    },
+    {
+        "repo_url": "https://github.com/facebook/react",
+        "total_lines": 615558,
+        "comment_lines": 35219,
+        "coverage": 5.72147547428512,
+        "timestamp": "2025-03-01T15:50:58.009199"
+    },
+    {
+        "repo_url": "https://github.com/facebook/react",
+        "total_lines": 615558,
+        "comment_lines": 35219,
+        "coverage": 5.72147547428512,
+        "timestamp": "2025-03-01T15:52:40.959547"
+    },
+    {
+        "repo_url": "https://github.com/facebook/react",
+        "total_lines": 615558,
+        "comment_lines": 35219,
+        "coverage": 5.72147547428512,
+        "timestamp": "2025-03-01T16:05:32.492658"
+    },
+    {
+        "repo_url": "https://github.com/github/clipboard-copy-element",
+        "total_lines": 440,
+        "comment_lines": 1,
+        "coverage": 0.22727272727272727,
+        "timestamp": "2025-03-01T16:06:27.775569"
+    },
+    {
+        "repo_url": "https://github.com/github/clipboard-copy-element",
+        "total_lines": 440,
+        "comment_lines": 1,
+        "coverage": 0.22727272727272727,
+        "timestamp": "2025-03-01T16:06:42.582226"
+    },
+    {
+        "repo_url": "https://github.com/twbs/bootstrap",
+        "total_lines": 43648,
+        "comment_lines": 1220,
+        "coverage": 2.7950879765395893,
+        "timestamp": "2025-03-01T16:08:44.589874"
+    },
+    {
+        "repo_url": "https://github.com/twbs/bootstrap",
+        "total_lines": 43648,
+        "comment_lines": 1220,
+        "coverage": 2.7950879765395893,
+        "timestamp": "2025-03-01T16:08:57.929989"
+    },
+    {
+        "repo_url": "https://github.com/facebook/react",
+        "total_lines": 615558,
+        "comment_lines": 35219,
+        "coverage": 5.72147547428512,
+        "timestamp": "2025-03-01T16:09:19.791693"
+    }
+]

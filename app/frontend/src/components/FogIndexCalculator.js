@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import FogIndexChart from "../components/FogIndexChart";
 import BenchmarkedChart from "./FogIndexBenchmarked";
-import TrendChart from "./FogIndexTrend";
 import Benchmarks from "../components/Benchmarks";
 import "./css/FogIndexCalculator.css";
 
@@ -15,23 +14,15 @@ const FogIndexCalculator = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
   const [benchmarkHistory, setBenchmarkHistory] = useState([]);
-  const [selectedGraph, setSelectedGraph] = useState("");
   const [showBenchmarkModal, setShowBenchmarkModal] = useState(false);
 
   useEffect(() => {
     if (githubUrl) {
       calculateFogIndex(githubUrl);
-    }
-  }, [githubUrl]);
-
-  useEffect(() => {
-    if (selectedGraph === "fogOverTime" || selectedGraph === "fogOverTimeBenchmarked") {
       fetchHistory(githubUrl);
-    }
-    if (selectedGraph === "fogOverTimeBenchmarked") {
       fetchBenchmarkHistory(githubUrl, "fog-index");
     }
-  }, [selectedGraph, githubUrl]);
+  }, [githubUrl]);
 
   const formatGitHubZipUrl = (repoUrl) => {
     if (!repoUrl) return "";
@@ -105,7 +96,7 @@ const FogIndexCalculator = () => {
   };
 
   return (
-    <div className="fog-index-container">
+    <div className="fog-index-container card">
       <h2 className="code-comment-title">Fog Index Calculator</h2>
 
       {githubUrl && (
@@ -127,28 +118,14 @@ const FogIndexCalculator = () => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(result).map(([key, value]) => (
-                <tr key={key}>
-                  <td>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}</td>
-                  <td>{value}</td>
-                </tr>
-              ))}
-            </tbody>
+        <tr>
+          <td>Fog Index</td>
+          <td>{result.fogIndex}</td>
+        </tr>
+      </tbody>
           </table>
 
-          {/* Dropdown Container */}
-          <div className="chart-dropdown-container">
-            <div className="dropdown-section">
-              <select onChange={(e) => setSelectedGraph(e.target.value)} className="chart-select">
-                <option value="">Select Graph Type</option>
-                <option value="fogIndex">Fog Index Chart</option>
-                <option value="fogOverTime">History Chart</option>
-                <option value="fogOverTimeBenchmarked">Benchmarked Chart</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Separate Benchmark Section */}
+          
           <div className="benchmark-section">
             <button 
               className="add-benchmark-button" 
@@ -158,12 +135,19 @@ const FogIndexCalculator = () => {
             </button>
           </div>
 
-          {/* Render Selected Chart */}
-          {selectedGraph === "fogIndex" && <FogIndexChart data={result} />}
-          {selectedGraph === "fogOverTime" && <TrendChart repoUrl={githubUrl} />} {/* Pass repoUrl */}
-          {selectedGraph === "fogOverTimeBenchmarked" && <BenchmarkedChart repoUrl={githubUrl} />}
+          <div className="graph-container">
+            <div className="graph-section">
+              <h3>Fog Index Complexity Breakdown</h3>
+              <FogIndexChart data={result} />
+            </div>
 
-          {/* Benchmark Modal */}
+            <div className="graph-section">
+              <h3>Benchmark Comparison</h3>
+              <BenchmarkedChart repoUrl={githubUrl} />
+            </div>
+          </div>
+
+          
           {showBenchmarkModal && (
             <div className="benchmark-modal">
               <div className="benchmark-modal-content">

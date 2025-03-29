@@ -71,7 +71,7 @@ const FogIndexChart = ({ data }) => {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Percentage Complex Words / Avg Sentence Length",
+          text: ["Percentage Complex Words", "Avg Sentence Length"],
         },
       },
       "y-right": {
@@ -90,8 +90,7 @@ const FogIndexChart = ({ data }) => {
   };
 
   return (
-    <div style={{ width: "80%", margin: "auto" }}>
-      <h3>Fog Index Complexity Breakdown</h3>
+    <div style={{ height: "100%" }}>
       <Bar data={chartData} options={options} />
     </div>
   );

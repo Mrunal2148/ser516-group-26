@@ -2,6 +2,7 @@ package com.myproject.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -11,17 +12,24 @@ import java.net.URL;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class FogIndexCalculator {
 
     @Value("${github.token}")
-    private String GITHUB_TOKEN;
+    private String GITHUB_TOKEN; // Inject GitHub token from application.properties
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final List<String> TEXT_FILE_EXTENSIONS = Arrays.asList(
             ".java", ".txt", ".md", ".xml", ".json", ".html", ".csv");
 
     public String calculateFromGitHub(String githubZipUrl) throws IOException {
+                
+        System.out.println("Downloading ZIP from: " + githubZipUrl);
+
         String outputDir = "github_project";
         downloadAndExtractZip(githubZipUrl, outputDir);
         List<File> textFiles = getTextFiles(new File(outputDir));
@@ -50,20 +58,18 @@ public class FogIndexCalculator {
         finalMetrics.put("percentageComplexWords", percentageComplexWords);
         finalMetrics.put("totalFiles", totalFiles);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         return objectMapper.writeValueAsString(finalMetrics);
     }
 
     private void downloadAndExtractZip(String fileUrl, String outputDir) throws IOException {
-        System.out.println("🔍 Downloading ZIP from: " + fileUrl);
+        System.out.println("Downloading ZIP from: " + fileUrl);
 
-        // ✅ Ensure old files are removed before extracting a new ZIP
         File dir = new File(outputDir);
         if (dir.exists()) {
-            deleteFolder(dir); // 🔥 This deletes everything in github_project/
+            deleteFolder(dir);
         }
-        dir.mkdirs(); // Recreate the folder after deletion
+        dir.mkdirs();
 
         URL url = new URL(fileUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -80,69 +86,73 @@ public class FogIndexCalculator {
             throw new IOException("GitHub API error: " + responseCode);
         }
 
-        InputStream inputStream = conn.getInputStream();
+        try (InputStream inputStream = conn.getInputStream();
+             ZipInputStream zipIn = new ZipInputStream(inputStream)) {
 
-        ZipInputStream zipIn = new ZipInputStream(inputStream);
-        ZipEntry entry;
-        byte[] buffer = new byte[1024];
+            ZipEntry entry;
+            byte[] buffer = new byte[1024];
 
-        while ((entry = zipIn.getNextEntry()) != null) {
-            File newFile = new File(outputDir, entry.getName());
-            if (entry.isDirectory()) {
-                newFile.mkdirs();
-            } else {
-                new File(newFile.getParent()).mkdirs();
-                try (FileOutputStream fos = new FileOutputStream(newFile)) {
-                    int len;
-                    while ((len = zipIn.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
+            while ((entry = zipIn.getNextEntry()) != null) {
+                File newFile = new File(outputDir, entry.getName());
+                if (entry.isDirectory()) {
+                    newFile.mkdirs();
+                } else {
+                    new File(newFile.getParent()).mkdirs();
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zipIn.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
                     }
                 }
+                zipIn.closeEntry();
             }
-            zipIn.closeEntry();
         }
-        zipIn.close();
     }
 
-    // ✅ Helper method to delete folder and all its contents
+    public String getDefaultBranch(String githubRepoUrl) {
+        try {
+
+            String[] parts = githubRepoUrl.replaceAll("(\\.zip|/refs/heads/.*)", "")
+                                     .replace("https://github.com/", "")
+                                     .split("/");
+        if (parts.length < 2) return "main";
+
+        String owner = parts[0];
+        String repo = parts[1];
+        System.out.println(owner+"........owner");
+        System.out.println(repo+"........repo");
+        String apiUrl = "https://api.github.com/repos/" + owner + "/" + repo;
+    
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "token" + GITHUB_TOKEN);
+    
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+    
+            if (response.getStatusCode() == HttpStatus.OK) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode json = objectMapper.readTree(response.getBody());
+                return json.get("default_branch").asText();
+            } else {
+                System.err.println("GitHub API Error: " + response.getStatusCodeValue());
+                return "main";
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching default branch: " + e.getMessage());
+            return "main";
+        }
+    }
+    
+
     private void deleteFolder(File folder) {
         if (folder.isDirectory()) {
-            for (File file : folder.listFiles()) {
+            for (File file : Objects.requireNonNull(folder.listFiles())) {
                 deleteFolder(file);
             }
         }
         folder.delete();
-    }
-
-    private List<File> getTextFiles(File dir) {
-        List<File> textFiles = new ArrayList<>();
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    textFiles.addAll(getTextFiles(file));
-                } else if (isTextFile(file.getName())) {
-                    textFiles.add(file);
-                }
-            }
-        }
-        System.out.println("🔍 Texfiles ZIP from: " + textFiles.size());
-        return textFiles;
-    }
-
-    private boolean isTextFile(String fileName) {
-        return TEXT_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
-    }
-
-    private String readFile(File file) throws IOException {
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append(" ");
-            }
-        }
-        return content.toString();
     }
 
     private Map<String, Double> calculateMetrics(String text) {
@@ -163,6 +173,22 @@ public class FogIndexCalculator {
         metrics.put("percentageComplexWords", complexWordPercentage);
         return metrics;
     }
+
+    private List<File> getTextFiles(File dir) {
+        List<File> textFiles = new ArrayList<>();
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    textFiles.addAll(getTextFiles(file));
+                } else if (isTextFile(file.getName())) {
+                    textFiles.add(file);
+                }
+            }
+        }
+        return textFiles;
+    }
+
 
     private int countWords(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -211,5 +237,20 @@ public class FogIndexCalculator {
             count--;
         }
         return count > 0 ? count : 1;
+    }
+
+    private boolean isTextFile(String fileName) {
+        return TEXT_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
+    }
+
+    private String readFile(File file) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append(" ");
+            }
+        }
+        return content.toString();
     }
 }

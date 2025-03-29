@@ -1,16 +1,17 @@
 /* 📌 Main Container */
 .code-comment-container {
-    width: 80%;
+    width: 100%;
     margin: auto;
     text-align: center;
-    padding: 20px;
+    padding: 10px;
 }
 
 /* 📌 Styled Table */
 .code-comment-table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
     margin-top: 20px;
+    margin: 20px auto;
 }
 
 .code-comment-table th, 
@@ -61,7 +62,6 @@
 /* 📌 Hover and Click Effects */
 .chart-select:hover {
     background-color: #218838;
-    transform: scale(1.05);
 }
 
 .chart-select:focus {
@@ -70,9 +70,29 @@
 }
 
 /* 📌 Graph Container */
-.graph-container {
-    margin-top: 30px;
-}
+.graph-container-comment {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .graph-section-comment {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    flex: 1;
+    min-width: 300px;
+    max-height: 400px;
+  }
+
+  .card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
 /* 📌 Title Styling */
 .code-comment-title {
     font-size: 24px;

@@ -31,6 +31,15 @@ services:
       - "5005:5005"  
     networks:
       - app-network
+  
+  code-comment-coverage-backend:
+    build:
+      context: ./backend/python-backend/code-comment
+      dockerfile: Dockerfile
+    ports:
+      - "5006:5006"  
+    networks:
+      - app-network
 
 networks:
   app-network:

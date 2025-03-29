@@ -1,15 +1,15 @@
-
 .fog-index-container {
-    width: 80%;
+    width: 100%;
     margin: auto;
     text-align: center;
-    padding: 20px;
+    padding: 10px;
   }
 
   .fog-index-table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
     margin-top: 20px;
+    margin: 20px auto;
   }
   
   .fog-index-table th, 
@@ -36,6 +36,9 @@
 
   .graph-container {
     margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
   }
   
 
@@ -75,7 +78,6 @@
 
   .chart-select:hover {
     background-color: #218838;
-    transform: scale(1.05);
   }
   
   .chart-select:focus {
@@ -143,6 +145,11 @@
   border-radius: 10px;
   width: 50%;
   position: relative;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
 }
 
 .close-modal {
@@ -168,4 +175,24 @@
 
 .add-benchmark-button:hover {
   background-color: #218838;
+}
+
+.graph-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.benchmark-section {
+  margin-top: 20px;
+}
+
+.card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
