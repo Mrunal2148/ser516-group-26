@@ -1,0 +1,42 @@
+.run-metrics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: auto;
+    padding: 40px 20px; /* Increased padding to move it down */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+    margin-top: 50px; /* This pushes the content down */
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .dropdown-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .run-button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px; /* Adds space above the button */
+  }
+  
+  .run-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  

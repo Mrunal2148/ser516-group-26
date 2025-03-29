@@ -1,0 +1,130 @@
+/* DefectsRemoved.css */
+
+.defects-container {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .defects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .defects-table th,
+  .defects-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .defects-table th {
+    background-color: #007bff;
+    color: white;
+    text-transform: uppercase;
+  }
+  
+  .defects-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .defects-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  .show-graph-button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .show-graph-button:hover {
+    background-color: #218838;
+  }
+  
+  .show-graph-button:active {
+    transform: scale(0.95);
+  }
+  
+  .graph-container {
+    margin-top: 30px;
+  }
+  /* 📌 Dropdown Wrapper */
+.chart-dropdown-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+/* 📌 Styled Dropdown Button */
+.chart-select {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  appearance: none; /* Hide default dropdown styles */
+  text-align: center;
+  width: 220px;
+}
+
+/* 📌 Wrapper for the Dropdown and Arrow */
+.chart-dropdown-container::after {
+  content: " ▼"; /* Dropdown arrow */
+  font-size: 14px;
+  color: white;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Prevent click interference */
+}
+
+/* 📌 Hover & Click Effects */
+.chart-select:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.chart-select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+/* 📌 When Option is Selected */
+.chart-select:active {
+  transform: scale(0.95);
+}
+.code-comment-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* 📌 Repository URL Styling */
+.code-comment-repo {
+  font-size: 16px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 15px;
+  display: inline-block;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
