@@ -114,4 +114,32 @@ public class FogIndexControllerTest {
         assertTrue(((java.util.List<?>)response.getBody()).isEmpty(), "Expected empty list on corrupted JSON");
     }
 
+    @Test
+    void testCalculateFogIndex_withNonExistentBranch_returnsError() {
+        FogIndexController controller = new FogIndexController();
+        String bogusBranchUrl = "https://github.com/Mrunal2148/ser516-group-java-2/archive/refs/heads/bogus-branch.zip";
+
+        ResponseEntity<Map<String, Object>> response = controller.calculateFogIndex(bogusBranchUrl);
+
+        assertNotNull(response);
+        assertEquals(500, response.getStatusCodeValue(), "Expected 500 for non-existent branch");
+        assertTrue(response.getBody().containsKey("error"));
+    }
+
+    @Test
+    void testCalculateFogIndex_AppendsHistoryForSameRepo() {
+        FogIndexController controller = new FogIndexController();
+        String repoUrl = "https://github.com/Mrunal2148/ser516-group-java-2/archive/refs/heads/Period-2.zip";
+
+        controller.calculateFogIndex(repoUrl);
+        controller.calculateFogIndex(repoUrl);
+
+        ResponseEntity<?> response = controller.getFogIndexHistory(repoUrl);
+        assertNotNull(response);
+        assertTrue(response.getBody() instanceof java.util.List);
+
+        java.util.List<?> history = (java.util.List<?>) response.getBody();
+        assertTrue(history.size() >= 2, "History should have at least 2 entries for repeated analysis");
+    }
+
 }
