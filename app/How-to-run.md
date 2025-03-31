@@ -29,3 +29,9 @@ Pre-requisite: docker
 cd app
 docker-compose build --no-cache
 docker-compose up
+
+
+Test commands -
+1. Code Comment Coverage - 
+    cd backend/python-backend/code-comment/tests
+    python -m unittest discover -s tests
