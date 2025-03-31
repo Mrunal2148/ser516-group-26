@@ -13,6 +13,14 @@ import org.springframework.http.ResponseEntity;
 public class FogIndexControllerTest {
 
     @Test
+    void testHandlePreflight_returnsOk() {
+        FogIndexController controller = new FogIndexController();
+        ResponseEntity<?> response = controller.handlePreflight();
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue(), "Expected 200 OK from preflight handler");
+    }
+
+    @Test
     void testCalculateFogIndex_withDummyUrl_returnsError() {
         FogIndexController controller = new FogIndexController();
         // URL that doesn’t point to a Git repo
