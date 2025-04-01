@@ -1,18 +1,41 @@
-.multi-metrics-container {
-    width: 100%;
-    margin: auto;
-    text-align: center;
-    padding: 10px;
-}
 
-.multi-metrics-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
+
+
 
 .no-metrics-selected {
     color: red;
     font-weight: bold;
     margin-top: 20px;
 }
+
+
+
+.multi-metrics-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  
+  .multi-metrics-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .metric-section {
+    background: #ffffff;
+    border: 1px solid #e3e3e3;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .metric-section h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #333;
+  }
+  
