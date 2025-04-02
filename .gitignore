@@ -1,0 +1,11 @@
+node_modules/
+.cache/
+venv/
+github_project/
+github_project/*
+target/
+target/*
+*.class
+links.json
+/frontend/node_modules/
+/venv/
