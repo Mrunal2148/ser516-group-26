@@ -5,7 +5,7 @@ import kmdImage from "./css/kmd.jpg";
 import parthImage from "./css/ParthPatel.jpg"
 import sahithiImage from "./css/sahithiImage.png"
 //import adityaImage from "./css/adityaImage."
-//import adityaImage from "./css/ripudamanImage."
+import ripudamanImage from "./css/ripudamanImage.jpeg"
 //import adityaImage from "./css/siddhantImage."
 const teamMembers = [
     {
@@ -38,16 +38,16 @@ const teamMembers = [
     role: "Developer",
     image: sahithiImage,
     description: "Masters in Software Engineering."
-  }/*,{
-    name: "Aditya Kumar",
-    role: "Developer",
-    image: adityaImage,
-    description: "need more info"
-  },
-  {
+  },{
     name: "Ripudaman Singh",
     role: "Developer",
     image: ripudamanImage,
+    description: "need more info"
+  }/*,
+  {
+    name: "Aditya Kumar",
+    role: "Developer",
+    image: adityaImage,
     description: "need more info"
   },
   {
