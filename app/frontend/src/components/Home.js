@@ -3,6 +3,10 @@ import mrunalImage from "./css/mrunal.jpeg";
 import shreyaImage from "./css/Shreya.jpg";
 import kmdImage from "./css/kmd.jpg";
 import parthImage from "./css/ParthPatel.jpg"
+import sahithiImage from "./css/sahithiImage.png"
+//import adityaImage from "./css/adityaImage."
+//import adityaImage from "./css/ripudamanImage."
+//import adityaImage from "./css/siddhantImage."
 const teamMembers = [
     {
         name: "Kaumudi Gulbarga",
@@ -29,7 +33,29 @@ const teamMembers = [
     role: "Developer",
     image: shreyaImage,
     description: "A detail oriented programmer who turns coffee into code",
-  }
+  },{
+    name: "Sahithi Karangala",
+    role: "Developer",
+    image: sahithiImage,
+    description: "Masters in Software Engineering."
+  }/*,{
+    name: "Aditya Kumar",
+    role: "Developer",
+    image: adityaImage,
+    description: "need more info"
+  },
+  {
+    name: "Ripudaman Singh",
+    role: "Developer",
+    image: ripudamanImage,
+    description: "need more info"
+  },
+  {
+    name: "Siddhant Shah",
+    role: "Developer",
+    image: siddhantImage,
+    description: "need more info"
+  }*/
 ];
 
 const Home = () => {
