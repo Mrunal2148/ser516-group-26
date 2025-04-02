@@ -48,6 +48,12 @@ const RunMetrics = () => {
         case "test-churn":
           navigate("/testChurn", { state: { owner, repo } });
           break;
+          case "fan-in":
+            navigate("/fanmetrics", { state: { owner, repo } });
+            break;
+            case "fan-out":
+              navigate("/fanmetrics", { state: { owner, repo } });
+              break;
         default:
           alert("Invalid metric");
           break;
@@ -107,6 +113,25 @@ const RunMetrics = () => {
           />
           <label htmlFor="test-churn">Test Churn</label>
         </div>
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="fan-in"
+            checked={selectedMetrics.includes("fan-in")}
+            onChange={() => handleMetricChange("fan-in")}
+          />
+          <label htmlFor="fan-in">Fan-in</label>
+        </div>
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="fan-out"
+            checked={selectedMetrics.includes("fan-out")}
+            onChange={() => handleMetricChange("fan-out")}
+          />
+          <label htmlFor="fan-out">Fan-out</label>
+        </div>
+
       </div>
 
       <button 
