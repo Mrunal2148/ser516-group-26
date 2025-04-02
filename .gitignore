@@ -9,3 +9,4 @@ target/*
 links.json
 /frontend/node_modules/
 /venv/
+app/.env

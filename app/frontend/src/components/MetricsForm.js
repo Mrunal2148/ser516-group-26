@@ -54,7 +54,7 @@ const MetricsForm = ({ githubUrl }) => {
 
     try {
       const formData = new FormData();
-      formData.append("folderName", zipFile);
+      formData.append("folder", zipFile);
       formData.append("scope", JSON.stringify({
         selected_files: selectedFiles,
         function_names: functionNames,
