@@ -23,12 +23,13 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      run: mvn -B clean package --file pom.xml
+      working-directory: ./app/backend
+      run: mvn -B clean package
 
     - name: Cache target directory
       uses: actions/cache@v3
       with:
-        path: target
+        path: app/backend/target
         key: ${{ runner.os }}-target-${{ github.sha }}
 
   test:
@@ -50,15 +51,16 @@ jobs:
     - name: Restore target cache
       uses: actions/cache@v3
       with:
-        path: target
+        path: app/backend/target
         key: ${{ runner.os }}-target-${{ github.sha }}
 
     - name: Run Tests
+      working-directory: ./app/backend
       run: mvn test
 
-    - name: Upload test results (optional)
+    - name: Upload test results on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: target/surefire-reports/
+        path: app/backend/target/surefire-reports/
