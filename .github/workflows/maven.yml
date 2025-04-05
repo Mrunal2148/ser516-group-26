@@ -68,9 +68,9 @@ jobs:
     - name: Analyze with SonarCloud
       uses: SonarSource/sonarcloud-github-action@v2
       with:
+        projectBaseDir: app/backend
         args: >
-            -Dsonar.projectKey=spraka52
-            -Dsonar.organization=spraka52
-            -Dsonar.projectBaseDir=app/backend
+          -Dsonar.projectKey=spraka52_SER-516-Group-26
+          -Dsonar.organization=spraka52
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
