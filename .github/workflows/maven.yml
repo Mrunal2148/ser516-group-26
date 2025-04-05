@@ -68,8 +68,8 @@ jobs:
     - name: Analyze with SonarCloud
       uses: SonarSource/sonarcloud-github-action@v2
       with:
-        organization: <your-sonar-org>        # Replace with your org key from SonarCloud
-        projectKey: <your-project-key>        # Replace with your SonarCloud project key
+        organization: Shreya Prakash        # Replace with your org key from SonarCloud
+        projectKey: spraka52       # Replace with your SonarCloud project key
         projectBaseDir: app/backend
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
