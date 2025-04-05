@@ -72,5 +72,6 @@ jobs:
         args: >
           -Dsonar.projectKey=spraka52_SER-516-Group-26
           -Dsonar.organization=spraka52
+          -Dsonar.java.binaries=target/classes
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
