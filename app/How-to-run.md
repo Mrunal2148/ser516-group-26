@@ -35,3 +35,6 @@ Test commands -
 1. Code Comment Coverage - 
     cd backend/python-backend/code-comment/tests
     python -m unittest discover -s tests
+2. App.py -
+    cd backend/python-backend
+    pytest tests/test_app.py
