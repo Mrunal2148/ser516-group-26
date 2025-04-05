@@ -3,6 +3,12 @@ import mrunalImage from "./css/mrunal.jpeg";
 import shreyaImage from "./css/Shreya.jpg";
 import kmdImage from "./css/kmd.jpg";
 import parthImage from "./css/ParthPatel.jpg"
+import sahithiImage from "./css/sahithiImage.png"
+import siddhantImage from "./css/siddhantImage.jpg"
+//used a placeholder for the below two missing images.
+import adityaImage from "./css/placeholderimage.jpg"
+import ripudamanImage from "./css/placeholderimage.jpg"
+
 const teamMembers = [
     {
         name: "Kaumudi Gulbarga",
@@ -29,6 +35,28 @@ const teamMembers = [
     role: "Developer",
     image: shreyaImage,
     description: "A detail oriented programmer who turns coffee into code",
+  },{
+    name: "Sahithi Karangala",
+    role: "Developer",
+    image: sahithiImage,
+    description: "Masters in Software Engineering."
+  },{
+    name: "Ripudaman Singh",
+    role: "Developer",
+    image: ripudamanImage,
+    description: "Masters in Software Engineering."
+  },
+  {
+    name: "Aditya Kumar",
+    role: "Developer",
+    image: adityaImage,
+    description: "Masters in Software Engineering."
+  },
+  {
+    name: "Siddhant Shah",
+    role: "Developer",
+    image: siddhantImage,
+    description: "Masters in Software Engineering."
   }
 ];
 
