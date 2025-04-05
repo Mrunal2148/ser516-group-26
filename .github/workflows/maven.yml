@@ -65,13 +65,11 @@ jobs:
         name: test-results
         path: app/backend/target/surefire-reports/
 
-    - name: Analyze with SonarCloud
-      uses: SonarSource/sonarcloud-github-action@v2
+    - name: Report Test Results to GitHub
+      if: always()
+      uses: dorny/test-reporter@v1
       with:
-        projectBaseDir: app/backend
-        args: >
-          -Dsonar.projectKey=spraka52_SER-516-Group-26
-          -Dsonar.organization=spraka52
-          -Dsonar.java.binaries=target/classes
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        name: Unit Tests
+        path: app/backend/target/surefire-reports
+        reporter: java-junit
+
