@@ -4,9 +4,11 @@ import shreyaImage from "./css/Shreya.jpg";
 import kmdImage from "./css/kmd.jpg";
 import parthImage from "./css/ParthPatel.jpg"
 import sahithiImage from "./css/sahithiImage.png"
-//import adityaImage from "./css/adityaImage."
-import ripudamanImage from "./css/ripudamanImage.jpeg"
-//import adityaImage from "./css/siddhantImage."
+import siddhantImage from "./css/siddhantImage.jpg"
+//used a placeholder for the below two missing images.
+import adityaImage from "./css/placeholderimage.jpg"
+import ripudamanImage from "./css/placeholderimage.jpg"
+
 const teamMembers = [
     {
         name: "Kaumudi Gulbarga",
@@ -42,20 +44,20 @@ const teamMembers = [
     name: "Ripudaman Singh",
     role: "Developer",
     image: ripudamanImage,
-    description: "need more info"
-  }/*,
+    description: "Masters in Software Engineering."
+  },
   {
     name: "Aditya Kumar",
     role: "Developer",
     image: adityaImage,
-    description: "need more info"
+    description: "Masters in Software Engineering."
   },
   {
     name: "Siddhant Shah",
     role: "Developer",
     image: siddhantImage,
-    description: "need more info"
-  }*/
+    description: "Masters in Software Engineering."
+  }
 ];
 
 const Home = () => {
