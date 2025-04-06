@@ -70,6 +70,14 @@ services:
       - "8002:8002"
     networks:
       - app-network
+  github-service:
+    build:
+      context: ./backend/python-backend/fan-in-fan-out/GitHub_service
+      dockerfile: src/Dockerfile
+    ports:
+      - "8003:8003"
+    networks:
+      - app-network
 
 networks:
   app-network:

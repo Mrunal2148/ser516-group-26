@@ -22,19 +22,31 @@ const MetricsForm = ({ githubUrl }) => {
 
     const fetchZip = async () => {
       try {
-        const res = await fetch("http://localhost:8001/github-zip", {
+        const formData = new FormData();
+        formData.append("owner", repoName.split('/')[0]);
+        formData.append("repo", repoName.split('/')[1]);
+        
+        const res = await fetch("http://localhost:8003/fetch-repo", {
           method: "POST",
-          body: formData,
+          body: JSON.stringify({
+            owner: repoName.split('/')[0],
+            repo: repoName.split('/')[1],
+            branch: "master"
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
-
+    
         if (!res.ok) throw new Error("Failed to fetch ZIP from GitHub");
-
+    
         const data = await res.json();
-        setAvailableFiles(data.files);
+        // Adapt the response format to what the frontend expects
+        setAvailableFiles(data.files || []);
         setZipFile(data.zipFileName);
       } catch (err) {
         console.error("Fetch error:", err.message);
-        setError("Failed to fetch GitHub ZIP. Try Again !");
+        setError("Failed to fetch GitHub ZIP. Try Again!");
       }
     };
 
