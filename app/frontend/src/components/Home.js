@@ -82,6 +82,21 @@ const Home = () => {
           <p>Checks the percentage of commented code for maintainability.</p>
         </div>
       </div>
+      <br />
+      <div style={styles.metricsContainer}>
+        <div style={styles.metricCard}>
+          <h3>🔁 Test Churn</h3>
+          <p>Tracks how frequently test cases are modified for test stability.</p>
+        </div>
+        <div style={styles.metricCard}>
+          <h3>📥 Fan-in</h3>
+          <p>Measures how many modules call a given module indicating reusability.</p>
+        </div>
+        <div style={styles.metricCard}>
+          <h3>📤 Fan-out</h3>
+          <p>Measures how many modules are called by a given module indicating dependency.</p>
+        </div>
+      </div>
 
       <h2 style={styles.sectionTitle}>Meet Our Team</h2>
       <div style={styles.teamContainer}>
@@ -118,6 +133,7 @@ const styles = {
     justifyContent: "center",
     gap: "20px",
     flexWrap: "wrap",
+    marginBottom: "5px",
   },
   metricCard: {
     width: "250px",
