@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -14,20 +15,6 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("fan-in-service")
 
-app = FastAPI(
-    title="Fan-in Metrics Service",
-    description="Service for calculating Fan-in metrics using JavaParser",
-    version="1.0.0"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://frontend:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 class FileInfo(BaseModel):
     path: str
     name: str
@@ -40,121 +27,71 @@ class MultiFunctionScopeRequest(BaseModel):
     selected_files: List[str]
     function_names: List[str]
     
-@app.on_event("startup")
-async def initialize_javaparser():
+@asynccontextmanager
+async def lifespan(app):
+    print("FastAPI lifespan startup triggered")
     try:
         global jpype, StaticJavaParser, JavaParserFanInAnalyzer
-        
+
         import jpype
         import jpype.imports
-        
+
+        libs_dir = os.path.join(os.path.dirname(__file__), "libs")
+        os.makedirs(libs_dir, exist_ok=True)
+
+        jar_path = os.path.join(libs_dir, "javaparser-core-3.24.4.jar")
+        if not os.path.exists(jar_path):
+            print("⚠️ Downloading JavaParser JAR...")
+            import urllib.request
+            urllib.request.urlretrieve(
+                "https://repo1.maven.org/maven2/com/github/javaparser/javaparser-core/3.24.4/javaparser-core-3.24.4.jar",
+                jar_path
+            )
+            print("✅ Downloaded")
+
         if not jpype.isJVMStarted():
-            libs_dir = os.path.join(os.path.dirname(__file__), "libs")
-            os.makedirs(libs_dir, exist_ok=True)
-            
-            jar_path = os.path.join(libs_dir, "javaparser-core-3.24.4.jar")
-            if not os.path.exists(jar_path):
-                logger.info("JavaParser JAR not found. Downloading...")
-                import urllib.request
-                urllib.request.urlretrieve(
-                    "https://repo1.maven.org/maven2/com/github/javaparser/javaparser-core/3.24.4/javaparser-core-3.24.4.jar",
-                    jar_path
-                )
-                logger.info("JavaParser JAR downloaded successfully")
-            
-            logger.info("Starting JVM with JavaParser...")
+            print("🚀 Starting JVM...")
             jpype.startJVM(classpath=[jar_path])
-            logger.info("JVM started successfully")
-        
+            print("✅ JVM started")
+
         from com.github.javaparser import StaticJavaParser
         from com.github.javaparser.ast.visitor import VoidVisitorAdapter
-        
+
         class JavaParserFanInAnalyzer:
             def __init__(self):
                 self.StaticJavaParser = StaticJavaParser
                 self.VoidVisitorAdapter = VoidVisitorAdapter
-            
+
             def analyze_fan_in(self, source_code: str, target_method: str) -> int:
-                try:
-                    compilation_unit = self.StaticJavaParser.parse(source_code)
-                    
-                    from com.github.javaparser.ast.expr import MethodCallExpr
-                    from com.github.javaparser.ast.body import MethodDeclaration
-                    
-                    method_calls = []
-                    method_definitions = []
-                    
-                    for node in compilation_unit.findAll(MethodCallExpr):
-                        if node.getNameAsString() == target_method:
-                            method_calls.append(node)
-                    
-                    for node in compilation_unit.findAll(MethodDeclaration):
-                        if node.getNameAsString() == target_method:
-                            method_definitions.append(node)
-                    
-                    valid_calls = []
-                    for call in method_calls:
-                        is_in_definition = False
-                        for definition in method_definitions:
-                            if (call.getBegin().isPresent() and 
-                                definition.getBegin().isPresent() and
-                                definition.getEnd().isPresent() and
-                                call.getBegin().get().line >= definition.getBegin().get().line and
-                                call.getBegin().get().line <= definition.getEnd().get().line):
-                                is_in_definition = True
-                                break
-                        
-                        if not is_in_definition:
-                            valid_calls.append(call)
-                    
-                    return len(valid_calls)
-                    
-                except Exception as e:
-                    logger.error(f"Error analyzing with JavaParser: {str(e)}")
-                    logger.error(traceback.format_exc())
-                    return self._fallback_regex_analysis(source_code, target_method)
-            
-            def _fallback_regex_analysis(self, source_code: str, target_method: str) -> int:
-                """Fallback to regex-based analysis if JavaParser fails"""
-                import re
-                
-                method_def_pattern = re.compile(
-                    r'(?:public|private|protected|static|\s) +[\w\<\>\[\]]+\s+' + 
-                    re.escape(target_method) + 
-                    r'\s*\([^\)]*\)\s*(?:\{|throws)'
-                )
-                
-                call_pattern = re.compile(
-                    r'(?<!new\s)(?<!\w)(?<!@)(\w+\.)?' + 
-                    re.escape(target_method) + 
-                    r'\s*\('
-                )
-                
-                method_defs = list(method_def_pattern.finditer(source_code))
-                exclude_positions = [(m.start(), m.end()) for m in method_defs]
-                
-                calls = list(call_pattern.finditer(source_code))
+                print(f"🔍 Analyzing method: {target_method}")
+                compilation_unit = self.StaticJavaParser.parse(source_code)
+                print("✅ Parsed source code")
+                # Import MethodCallExpr directly via jpype
+                MethodCallExpr = jpype.JClass("com.github.javaparser.ast.expr.MethodCallExpr")
+                print("✅ Loaded MethodCallExpr class")
                 count = 0
-                
-                for call in calls:
-                    is_excluded = False
-                    for start, end in exclude_positions:
-                        if start <= call.start() <= end:
-                            is_excluded = True
-                            break
-                    
-                    if not is_excluded:
+                # Use Java streams to filter all method calls
+                method_calls = compilation_unit.findAll(MethodCallExpr)
+                print(f"🔍 Found {len(method_calls)} method calls")
+                for mc in method_calls:
+                    method_name = mc.getNameAsString()
+                    print(f"➡️ Method call: {method_name}")
+                    if method_name == target_method:
                         count += 1
-                
+                print(f"✅ Total fan-in for {target_method}: {count}")
                 return count
         
-        global analyzer
+        global analyzer  # 👈 make it available to get_analyzer()
         analyzer = JavaParserFanInAnalyzer()
-        logger.info("JavaParser analyzer initialized successfully")
-        
+        print("✅ JavaParserFanInAnalyzer instance created")
+
     except Exception as e:
-        logger.error(f"Error initializing JavaParser: {str(e)}")
-        logger.error(traceback.format_exc())
+        import traceback
+        print("🔥 JVM initialization failed!")
+        print(e)
+        print(traceback.format_exc())
+
+    yield  # <-- this is what lets FastAPI finish startup
 
 def get_analyzer():
     """Dependency injection for the analyzer"""
@@ -164,6 +101,21 @@ def get_analyzer():
         status_code=500, 
         detail="JavaParser analyzer not initialized. Please try again later."
     )
+
+app = FastAPI(
+    title="Fan-in Metrics Service",
+    description="Service for calculating Fan-in metrics using JavaParser",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://frontend:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def fan_in_metric(source_code: str, target: str, analyzer=None) -> int:
    
@@ -206,7 +158,13 @@ def fan_in_metric(source_code: str, target: str, analyzer=None) -> int:
         logger.error(traceback.format_exc())
         import re
         pattern = re.compile(r'(?<!new\s)(?<!\w)(?<!@)(\w+\.)?' + re.escape(target) + r'\s*\(')
-        return len(pattern.findall(source_code))
+        # return len(pattern.findall(source_code))
+        print(len(pattern.findall(source_code)))
+        import traceback
+        print("🔥 ERROR IN fan_in_metric 🔥")
+        print(e)
+        print(traceback.format_exc())
+        raise
 
 @app.post("/upload-folder")
 async def upload_folder(folder: UploadFile = File(...)):
