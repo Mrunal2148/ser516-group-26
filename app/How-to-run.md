@@ -38,3 +38,7 @@ Test commands -
 2. App.py -
     cd backend/python-backend
     pytest tests/test_app.py
+3. Frontend JS tests use Jest
+    cd frontend
+    npm install
+    npm test -- --watchAll
