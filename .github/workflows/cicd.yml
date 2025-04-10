@@ -61,8 +61,9 @@ jobs:
 
       - name: Run Code Comment Coverage Tests
         run: |
-          cd app/backend/python-backend/code-comment/tests
-          python -m unittest discover -s tests
+            cd app/backend/python-backend/code-comment/tests
+            python -m unittest discover -s .
+
 
       - name: Run app.py tests
         run: |
