@@ -40,6 +40,44 @@ services:
       - "5006:5006"  
     networks:
       - app-network
+      
+  fan-in-fan-out-api:
+    build:
+      context: ./backend/python-backend/fan-in-fan-out/api_gateway
+      dockerfile: src/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - fan-in-service
+      - fan-out-service
+    networks:
+      - app-network
+
+  fan-in-service:
+    build:
+      context: ./backend/python-backend/fan-in-fan-out/fan_in_service
+      dockerfile: src/Dockerfile
+    ports:
+      - "8001:8001"
+    networks:
+      - app-network
+
+  fan-out-service:
+    build:
+      context: ./backend/python-backend/fan-in-fan-out/fan_out_service
+      dockerfile: src/Dockerfile
+    ports:
+      - "8002:8002"
+    networks:
+      - app-network
+  github-service:
+    build:
+      context: ./backend/python-backend/fan-in-fan-out/GitHub_service
+      dockerfile: src/Dockerfile
+    ports:
+      - "8003:8003"
+    networks:
+      - app-network
 
 networks:
   app-network:
