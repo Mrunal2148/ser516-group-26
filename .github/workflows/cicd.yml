@@ -32,10 +32,13 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}"
       
       - name: Tag and push images
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          docker tag app-python-backend ${{ secrets.DOCKER_USERNAME }}/app-python-backend:latest
-          docker tag app-java-backend ${{ secrets.DOCKER_USERNAME }}/app-java-backend:latest
-          docker tag app-frontend ${{ secrets.DOCKER_USERNAME }}/app-frontend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/app-python-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/app-java-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/app-frontend:latest
+          docker tag app-python-backend $DOCKER_USERNAME/app-python-backend:latest
+          docker tag app-java-backend $DOCKER_USERNAME/app-java-backend:latest
+          docker tag app-frontend $DOCKER_USERNAME/app-frontend:latest
+          
+          docker push $DOCKER_USERNAME/app-python-backend:latest
+          docker push $DOCKER_USERNAME/app-java-backend:latest
+          docker push $DOCKER_USERNAME/app-frontend:latest
