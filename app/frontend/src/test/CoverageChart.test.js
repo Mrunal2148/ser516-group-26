@@ -2,6 +2,9 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import CoverageChart from "../components/CoverageChart";
 import '@testing-library/jest-dom';
+import axios from "axios";
+ 
+jest.mock("axios");
 
 // Mock recharts to avoid rendering actual charts
 jest.mock("recharts", () => ({
@@ -15,6 +18,10 @@ jest.mock("recharts", () => ({
 }));
 
 describe("CoverageChart Component", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axios.get.mockResolvedValue({ data: [] });
+  });
   const mockChartData = [
     { name: "Measurement 1", value: 50 },
     { name: "Measurement 2", value: 75 },

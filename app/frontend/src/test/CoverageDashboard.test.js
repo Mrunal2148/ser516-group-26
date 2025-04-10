@@ -6,6 +6,7 @@ jest.mock("axios");
 
 const mockGithubUrl = "https://github.com/example/repo";
 
+jest.mock("axios");
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useLocation: () => ({ state: { githubUrl: mockGithubUrl } }),
@@ -14,6 +15,7 @@ jest.mock("react-router-dom", () => ({
 describe("CoverageDashboard Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    axios.get.mockResolvedValue({ data: [] });
   });
 
   test("renders coverage breakdown and benchmark chart if data exists", async () => {

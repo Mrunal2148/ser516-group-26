@@ -3,6 +3,10 @@ import { render, screen } from "@testing-library/react";
 import CombinedCoverageChart from "../components/CombinedCoverageChart";
 import '@testing-library/jest-dom';
 
+import axios from "axios";
+ 
+jest.mock("axios");
+
 jest.mock("react-chartjs-2", () => ({
   Line: ({ data }) => <div data-testid="mock-line-chart">{JSON.stringify(data)}</div>,
 }));
@@ -25,6 +29,12 @@ describe("CombinedCoverageChart Component", () => {
   ];
 
   const mockGithubUrl = "https://github.com/example/repo";
+
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axios.get.mockResolvedValue({ data: [] });
+  });
 
   test("renders the chart with provided data and benchmarks", () => {
     render(

@@ -18,6 +18,7 @@ describe("CodeComment Component", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axios.post.mockResolvedValue({ data: { coverage: 42.42 } });
     axios.get.mockResolvedValue({ data: [] });
   });
 
@@ -101,6 +102,7 @@ describe("CodeComment Component", () => {
   });
 
   test("displays loading message while analyzing coverage", async () => {
+    axios.post.mockImplementationOnce(() => new Promise(() => {})); // Simulate a pending request
     await act(async () => {
       render(
         <MemoryRouter initialEntries={[mockLocationState]}>
