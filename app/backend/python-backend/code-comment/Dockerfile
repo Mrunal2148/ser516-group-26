@@ -10,4 +10,4 @@ COPY code_comment_app.py .
 
 EXPOSE 5006
 
-CMD ["python", "code-comment-app.py"]
+CMD ["python", "code_comment_app.py"]
