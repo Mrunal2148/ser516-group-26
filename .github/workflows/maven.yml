@@ -58,21 +58,4 @@ jobs:
       working-directory: ./app/backend
       run: mvn test
 
-    - name: List surefire-reports for debugging
-      if: always()
-      run: ls -R app/backend/target/surefire-reports || echo "No reports found"
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: app/backend/target/surefire-reports/
-
-    - name: Report Test Results to GitHub
-      if: always()
-      uses: dorny/test-reporter@v1
-      with:
-        name: Unit Tests
-        path: app/backend/target/surefire-reports/*.xml
-        reporter: java-junit
