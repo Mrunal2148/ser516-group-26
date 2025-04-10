@@ -35,10 +35,10 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          docker tag app-python-backend ser516/app-python-backend:latest
-          docker tag app-java-backend ser516/app-java-backend:latest
-          docker tag app-frontend ser516/app-frontend:latest
+          docker tag app-python-backend mkapure/app-python-backend:latest
+          docker tag app-java-backend mkapure/app-java-backend:latest
+          docker tag app-frontend mkapure/app-frontend:latest
           
-          docker push ser516/app-python-backend:latest
-          docker push ser516/app-java-backend:latest
-          docker push ser516/app-frontend:latest
+          docker push mkapure/app-python-backend:latest
+          docker push mkapure/app-java-backend:latest
+          docker push mkapure/app-frontend:latest
