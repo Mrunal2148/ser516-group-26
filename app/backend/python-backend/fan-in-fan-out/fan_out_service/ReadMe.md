@@ -28,7 +28,7 @@ pip install -r requirements.txt
 ### 5.Run the Fan-Out FastAPI service: 
 cd src
 
-uvicorn main:app --reload 
+uvicorn main:app --port 8002 --reload
 
 ### 6.Run Unit Tests: 
 cd ../ 
