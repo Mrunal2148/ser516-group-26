@@ -31,8 +31,11 @@ app.add_middleware(
 )
 
 GITHUB_API_BASE_URL = "https://api.github.com"
+#trying to send it to fan in out directly
 FAN_IN_SERVICE_URL = "http://localhost:8001/metrics/fan-in"
 FAN_OUT_SERVICE_URL = "http://localhost:8002/metrics/fan-out"
+#FAN_IN_SERVICE_URL = "http://fan-in-service:8001/metrics/fan-in"
+#FAN_OUT_SERVICE_URL = "http://fan-out-service:8002/metrics/fan-out"
 
 
 @app.post("/github-zip")
@@ -56,7 +59,9 @@ async def github_zip(githubZipUrl: str = Form(...)):
         # Get the file listing for Java files in the ZIP
         with open(zip_path, 'rb') as f:
             files = {'folder': (os.path.basename(zip_path), f, 'application/zip')}
+            #updating the code to point to the service itself
             response = requests.post("http://localhost:8001/upload-folder", files=files)
+            #response = requests.post("http://fan-in-service:8001/upload-folder", files=files)
             response.raise_for_status()
             file_list_result = response.json()
         
@@ -273,7 +278,9 @@ async def analyze_repo(
             # Call the file listing service
             with open(zip_path, 'rb') as f:
                 files = {'folder': (os.path.basename(zip_path), f, 'application/zip')}
+                #add the change to the service being pointed.
                 response = requests.post("http://localhost:8001/upload-folder", files=files)
+                #response = requests.post("http://fan-in-service:8001/upload-folder", files=files)
                 logger.info(f"File listing service response: {response.status_code} - {response.text}") # Log the full response
 
                 response.raise_for_status() # Raise exception for bad status codes

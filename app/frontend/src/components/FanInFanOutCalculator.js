@@ -27,6 +27,7 @@ const FanInFanOutCalculator = () => {
     const formData = new FormData();
     formData.append('folder', file);
 
+    //    fetch('http://localhost:8001/upload-folder', {
     fetch('http://localhost:8000/metrics/fan-in-scoped', {
       method: 'POST',
       body: formData
