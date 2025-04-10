@@ -56,12 +56,12 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -r backend/python-backend/requirements.txt
+          pip install -r app/backend/python-backend/requirements.txt
           pip install pytest
 
       - name: Run Code Comment Coverage Tests
         run: |
-          cd backend/python-backend/code-comment/tests
+          cd app/backend/python-backend/code-comment/tests
           python -m unittest discover -s tests
 
       - name: Run app.py tests
