@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("api-gateway")
 
-FANIN_URL = "http://localhost:8001"
-FANOUT_URL = "http://localhost:8002"
+FANIN_URL = "http://fan-in-service:8001" 
+FANOUT_URL = "http://fan-out-service:8002" 
 
 app = FastAPI(
     title="Java Fan-in/Fan-out Metrics",
