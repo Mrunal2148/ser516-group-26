@@ -78,7 +78,7 @@ export default function AddProject() {
             Add Link
           </Button>
           <List sx={{ mt: 2 }}>
-            {links.slice(1).map((link, index) => (
+            {links.map((link, index) => (
               <ListItem key={index} divider>
                 <ListItemText primary={link} />
               </ListItem>
