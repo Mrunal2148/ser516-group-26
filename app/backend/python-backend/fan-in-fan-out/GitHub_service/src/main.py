@@ -130,6 +130,14 @@ async def fetch_repo(
             zip_path = download_github_zip(owner, repo, branch, token)
         except HTTPException as e:
             raise e # Re-raise the exception
+
+        java_files = []
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for zip_info in zip_ref.infolist():
+                if zip_info.filename.endswith('.java'):
+                    # Store relative path within the repository
+                    java_files.append(zip_info.filename)
+                    logger.info(f"Found Java file: {zip_info.filename}")
         
         #shutil.rmtree(temp_dir)  # Clean up the temporary directory (if it was created)  #<----- Not used now
 
@@ -137,8 +145,8 @@ async def fetch_repo(
             "status": "success",
             "message": f"Repository {owner}/{repo} fetched successfully",
             "zip_path": zip_path,
-            #"file_count": len(java_files), # Removed.
-            #"files": java_files # Removed.
+            "file_count": len(java_files),
+            "files": java_files
         }
     except HTTPException as he:
         raise he
@@ -195,64 +203,67 @@ async def health_check():
         "javaparser": jvm_status
     }
 #removing fetch to directly download zip
-#async def fetch_java_files( #REMOVE
-#     owner: str, #REMOVE
-#     repo: str, #REMOVE
-#     branch: str, #REMOVE
-#     token: Optional[str], #REMOVE
-#     path: str, #REMOVE
-#     output_dir: str #REMOVE
-# ) -> List[str]:#REMOVE
-#     java_files = []#REMOVE
-#     headers = {"Accept": "application/vnd.github.v3+json"}#REMOVE
-#     if token:#REMOVE
-#         headers["Authorization"] = f"token {token}"#REMOVE
-#     url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/contents/{path}"#REMOVE
-#     if branch:#REMOVE
-#         url += f"?ref={branch}"#REMOVE
-#     logger.info(f"Fetching repository contents from: {url}")#REMOVE
-#     response = requests.get(url, headers=headers)#REMOVE
-#     if response.status_code != 200:#REMOVE
-#         logger.error(f"Failed to fetch repository contents: {response.status_code} - {response.text}")#REMOVE
-#         raise HTTPException(#REMOVE
-#             status_code=response.status_code,#REMOVE
-#             detail=f"GitHub API error: {response.json().get('message', 'Unknown error')}"#REMOVE
-#         )#REMOVE
-#     contents = response.json()#REMOVE
-#     if not isinstance(contents, list):#REMOVE
-#         contents = [contents]#REMOVE
-#     for item in contents:#REMOVE
-#         item_path = item.get("path")#REMOVE
-#         item_type = item.get("type")#REMOVE
-#         if item_type == "dir":#REMOVE
-#             nested_path = item.get("path", "")#REMOVE
-#             nested_files = await fetch_java_files(#REMOVE
-#                 owner=owner,#REMOVE
-#                 repo=repo,#REMOVE
-#                 branch=branch,#REMOVE
-#                 token=token,#REMOVE
-#                 path=nested_path,#REMOVE
-#                 output_dir=output_dir#REMOVE
-#             )#REMOVE
-#             java_files.extend(nested_files)#REMOVE
-#         elif item_type == "file" and item_path.endswith(".java"):#REMOVE
-#             download_url = item.get("download_url")#REMOVE
-#             if not download_url:#REMOVE
-#                 content_base64 = item.get("content", "")#REMOVE
-#                 content = base64.b64decode(content_base64).decode("utf-8")#REMOVE
-#             else:#REMOVE
-#                 file_response = requests.get(download_url, headers=headers)#REMOVE
-#                 if file_response.status_code != 200:#REMOVE
-#                     logger.warning(f"Failed to download file {item_path}: {file_response.status_code}")#REMOVE
-#                     continue#REMOVE
-#                 content = file_response.text#REMOVE
-#             rel_path = item_path#REMOVE
-#             file_path = os.path.join(output_dir, rel_path)#REMOVE
-#             os.makedirs(os.path.dirname(file_path), exist_ok=True)#REMOVE
-#             with open(file_path, "w", encoding="utf-8") as f:#REMOVE
-#                 f.write(content)#REMOVE
-#             java_files.append(file_path)#REMOVE
-#     return java_files#REMOVE
+'''
+ async def fetch_java_files( 
+      owner: str, 
+      repo: str, 
+      branch: str, 
+      token: Optional[str], 
+      path: str, 
+      output_dir: str 
+  ) -> List[str]:
+      java_files = []
+      headers = {"Accept": "application/vnd.github.v3+json"}
+      if token:
+          headers["Authorization"] = f"token {token}"
+      url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/contents/{path}"
+      if branch:
+          url += f"?ref={branch}"
+      logger.info(f"Fetching repository contents from: {url}")
+      response = requests.get(url, headers=headers)
+      if response.status_code != 200:
+          logger.error(f"Failed to fetch repository contents: {response.status_code} - {response.text}")
+          raise HTTPException(
+              status_code=response.status_code,
+              detail=f"GitHub API error: {response.json().get('message', 'Unknown error')}"
+          )
+      contents = response.json()
+      if not isinstance(contents, list):
+          contents = [contents]
+      for item in contents:
+          item_path = item.get("path")
+          item_type = item.get("type")
+          if item_type == "dir":
+              nested_path = item.get("path", "")
+              nested_files = await fetch_java_files(
+                  owner=owner,
+                  repo=repo,
+                  branch=branch,
+                  token=token,
+                  path=nested_path,
+                  output_dir=output_dir
+              )
+              java_files.extend(nested_files)
+          elif item_type == "file" and item_path.endswith(".java"):
+              download_url = item.get("download_url")
+              if not download_url:
+                  content_base64 = item.get("content", "")
+                  content = base64.b64decode(content_base64).decode("utf-8")
+              else:
+                  file_response = requests.get(download_url, headers=headers)
+                  if file_response.status_code != 200:
+                      logger.warning(f"Failed to download file {item_path}: {file_response.status_code}")
+                      continue
+                  content = file_response.text
+              rel_path = item_path
+              file_path = os.path.join(output_dir, rel_path)
+              os.makedirs(os.path.dirname(file_path), exist_ok=True)
+              with open(file_path, "w", encoding="utf-8") as f:
+                  f.write(content)
+              java_files.append(file_path)
+      return java_files
+'''
+
 
 @app.get("/download")
 async def download_zip(path: str = Query(..., description="Path to the ZIP file")):
@@ -303,6 +314,7 @@ async def analyze_repo(
             with open(zip_path, 'rb') as f:
                 files = {'folder': (os.path.basename(zip_path), f, 'application/zip')}
                 response = requests.post("http://localhost:8001/upload-folder", files=files)
+                logger.info(f"File listing service response: {response.status_code} - {response.text}") # Log the full response 
                 response.raise_for_status()
                 file_list_result = response.json()
                 java_files = file_list_result.get("files", [])
