@@ -114,10 +114,19 @@ const RunMetrics = () => {
           <input
             type="checkbox"
             id="fan-in-fan-out"
-            checked={selectedMetrics.includes("fan-in-fan-out")}
-            onChange={() => handleMetricChange("fan-in-fan-out")}
+            checked={selectedMetrics.includes("fan-in")}
+            onChange={() => handleMetricChange("fan-in")}
           />
-          <label htmlFor="fan-in-fan-out">Fan-In / Fan-Out</label>
+          <label htmlFor="fan-in-fan-out">Fan-in</label>
+        </div>
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="fan-out"
+            checked={selectedMetrics.includes("fan-out")}
+            onChange={() => handleMetricChange("fan-out")}
+          />
+          <label htmlFor="fan-out">Fan-out</label>
         </div>
 
       </div>

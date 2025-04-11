@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import DirectoryTree from "./DirectoryTree";
 import "../components/css/MetricsForm.css";
 
 const MetricsForm = ({ githubUrl }) => {
   const [zipFile, setZipFile] = useState(null);
   const [availableFiles, setAvailableFiles] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [functionNames, setFunctionNames] = useState([""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState(null);
@@ -16,16 +13,8 @@ const MetricsForm = ({ githubUrl }) => {
   useEffect(() => {
     if (!githubUrl) return;
 
-    const zipUrl = `${githubUrl}/archive/refs/heads/main.zip`;
-    const formData = new FormData();
-    formData.append("githubZipUrl", zipUrl);
-
     const fetchZip = async () => {
       try {
-        const formData = new FormData();
-        formData.append("owner", repoName.split('/')[0]);
-        formData.append("repo", repoName.split('/')[1]);
-        
         const res = await fetch("http://localhost:8003/fetch-repo", {
           method: "POST",
           body: JSON.stringify({
@@ -41,7 +30,6 @@ const MetricsForm = ({ githubUrl }) => {
         if (!res.ok) throw new Error("Failed to fetch ZIP from GitHub");
     
         const data = await res.json();
-        // Adapt the response format to what the frontend expects
         setAvailableFiles(data.files || []);
         setZipFile(data.zipFileName);
       } catch (err) {
@@ -51,12 +39,12 @@ const MetricsForm = ({ githubUrl }) => {
     };
 
     fetchZip();
-  }, [githubUrl]);
+  }, [githubUrl, repoName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!zipFile || selectedFiles.length === 0 || functionNames.every(name => name.trim() === "")) {
-      setError("Please provide method name(s) and select files.");
+    if (!zipFile) {
+      setError("No ZIP file available. Ensure the repository is fetched.");
       return;
     }
 
@@ -67,10 +55,7 @@ const MetricsForm = ({ githubUrl }) => {
     try {
       const formData = new FormData();
       formData.append("folder", zipFile);
-      formData.append("scope", JSON.stringify({
-        selected_files: selectedFiles,
-        function_names: functionNames,
-      }));
+      formData.append("scope", "{}");
 
       const res = await fetch("http://localhost:8000/metrics/combined-scoped-multi", {
         method: "POST",
@@ -101,35 +86,14 @@ const MetricsForm = ({ githubUrl }) => {
       )}
 
       {error && <p className="text-red-600">{error}</p>}
-      {loading && <p>Loading GitHub ZIP...</p>}
+      {loading && <p>Calculating metrics...</p>}
+
 
       {availableFiles.length > 0 && (
         <form onSubmit={handleSubmit}>
-          <DirectoryTree
-            files={availableFiles}
-            selectedFiles={selectedFiles}
-            onFileSelectionChange={setSelectedFiles}
-          />
-
-          <div className="method-inputs">
-            {functionNames.map((name, idx) => (
-              <input
-                key={idx}
-                type="text"
-                value={name}
-                placeholder="Enter method name"
-                onChange={(e) => {
-                  const updated = [...functionNames];
-                  updated[idx] = e.target.value;
-                  setFunctionNames(updated);
-                }}
-              />
-            ))}
-            <button type="button" onClick={() => setFunctionNames([...functionNames, ""])}>
-              ➕ Add Method
-            </button>
+          <div>
+            <p>{availableFiles.length} Java files found.</p>
           </div>
-
           <button type="submit" disabled={loading}>
             {loading ? "Calculating..." : "Calculate Metrics"}
           </button>

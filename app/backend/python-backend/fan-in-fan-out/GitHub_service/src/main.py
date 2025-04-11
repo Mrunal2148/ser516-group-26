@@ -95,7 +95,7 @@ async def fetch_repo(
             "owner": "username",
             "repo": "repository-name",
             "branch": "",
-            "token": "github_personal_access_token", # Optional
+            "token": "github_personal_access_token", # Not Optional
             "path": "", # Optional, specific directory in the repo
         }
     )
@@ -264,6 +264,7 @@ async def analyze_repo(
         repo = repo_details.get("repo")
         branch = repo_details.get("branch")
         path = repo_details.get("path")
+        token = repo_details.get("token")
 
         if not zip_path or not os.path.exists(zip_path):
             raise HTTPException(status_code=500, detail="Failed to create ZIP file from repository")
