@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../components/css/MetricsForm.css";
 
+const token = process.env.REACT_APP_GITHUB_TOKEN;
+
 const MetricsForm = ({ githubUrl }) => {
   const [zipFile, setZipFile] = useState(null);
   const [availableFiles, setAvailableFiles] = useState([]);
@@ -8,6 +10,7 @@ const MetricsForm = ({ githubUrl }) => {
   const [error, setError] = useState("");
   const [results, setResults] = useState(null);
 
+  // Get the repository name for display purposes.
   const repoName = githubUrl?.replace("https://github.com/", "");
 
   useEffect(() => {
@@ -15,23 +18,40 @@ const MetricsForm = ({ githubUrl }) => {
 
     const fetchZip = async () => {
       try {
-        const res = await fetch("http://localhost:8003/fetch-repo", {
-          method: "POST",
-          body: JSON.stringify({
-            owner: repoName.split('/')[0],
-            repo: repoName.split('/')[1],
-            branch: "master"
-          }),
-          headers: {
-            'Content-Type': 'application/json'
+        // Using the full repo URL, extract owner and repo from it.
+        const parts = githubUrl.split("/");
+        const owner = parts[3]; // Adjust based on the URL structure, e.g., "https://github.com/owner/repo"
+        const repo = parts[4];
+
+        let data = null;
+        for (const branch of ["main", "master"]) {
+          const res = await fetch("http://localhost:8003/fetch-repo", {
+            method: "POST",
+            body: JSON.stringify({
+              owner: owner,
+              repo: repo,
+              branch: branch,
+              token: token,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (res.ok) {
+            data = await res.json();
+            break;
+          } else {
+            console.warn(`Failed to fetch with branch ${branch}: ${res.status}`);
           }
-        });
-    
-        if (!res.ok) throw new Error("Failed to fetch ZIP from GitHub");
-    
-        const data = await res.json();
+        }
+
+        if (!data) {
+          throw new Error("Failed to fetch ZIP from GitHub on both main and master");
+        }
+
         setAvailableFiles(data.files || []);
-        setZipFile(data.zipFileName);
+        setZipFile(data.zip_path); // Use zip_path from the backend
       } catch (err) {
         console.error("Fetch error:", err.message);
         setError("Failed to fetch GitHub ZIP. Try Again!");
@@ -39,7 +59,7 @@ const MetricsForm = ({ githubUrl }) => {
     };
 
     fetchZip();
-  }, [githubUrl, repoName]);
+  }, [githubUrl]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,7 +107,6 @@ const MetricsForm = ({ githubUrl }) => {
 
       {error && <p className="text-red-600">{error}</p>}
       {loading && <p>Calculating metrics...</p>}
-
 
       {availableFiles.length > 0 && (
         <form onSubmit={handleSubmit}>
