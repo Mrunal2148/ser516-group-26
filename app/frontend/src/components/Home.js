@@ -3,6 +3,12 @@ import mrunalImage from "./css/mrunal.jpeg";
 import shreyaImage from "./css/Shreya.jpg";
 import kmdImage from "./css/kmd.jpg";
 import parthImage from "./css/ParthPatel.jpg"
+import sahithiImage from "./css/sahithiImage.png"
+import siddhantImage from "./css/siddhantImage.jpg"
+//used a placeholder for the below two missing images.
+import adityaImage from "./css/placeholderimage.jpg"
+import ripudamanImage from "./css/placeholderimage.jpg"
+
 const teamMembers = [
     {
         name: "Kaumudi Gulbarga",
@@ -29,6 +35,28 @@ const teamMembers = [
     role: "Developer",
     image: shreyaImage,
     description: "A detail oriented programmer who turns coffee into code",
+  },{
+    name: "Sahithi Karangala",
+    role: "Developer",
+    image: sahithiImage,
+    description: "Masters in Software Engineering."
+  },{
+    name: "Ripudaman Singh",
+    role: "Developer",
+    image: ripudamanImage,
+    description: "Masters in Software Engineering."
+  },
+  {
+    name: "Aditya Kumar",
+    role: "Developer",
+    image: adityaImage,
+    description: "Masters in Software Engineering."
+  },
+  {
+    name: "Siddhant Shah",
+    role: "Developer",
+    image: siddhantImage,
+    description: "Masters in Software Engineering."
   }
 ];
 
@@ -52,6 +80,21 @@ const Home = () => {
         <div style={styles.metricCard}>
           <h3>💬 Code Comment Coverage</h3>
           <p>Checks the percentage of commented code for maintainability.</p>
+        </div>
+      </div>
+      <br />
+      <div style={styles.metricsContainer}>
+        <div style={styles.metricCard}>
+          <h3>🔁 Test Churn</h3>
+          <p>Tracks how frequently test cases are modified for test stability.</p>
+        </div>
+        <div style={styles.metricCard}>
+          <h3>📥 Fan-in</h3>
+          <p>Measures how many modules call a given module indicating reusability.</p>
+        </div>
+        <div style={styles.metricCard}>
+          <h3>📤 Fan-out</h3>
+          <p>Measures how many modules are called by a given module indicating dependency.</p>
         </div>
       </div>
 
@@ -90,6 +133,7 @@ const styles = {
     justifyContent: "center",
     gap: "20px",
     flexWrap: "wrap",
+    marginBottom: "5px",
   },
   metricCard: {
     width: "250px",

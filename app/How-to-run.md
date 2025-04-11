@@ -30,9 +30,15 @@ cd app
 docker-compose build --no-cache
 docker-compose up
 
-# Running front-end unit tests
-Frontend JS tests use Jest.
 
-cd frontend
-npm install
-npm test -- --watchAll
+Test commands -
+1. Code Comment Coverage - 
+    cd backend/python-backend/code-comment/tests
+    python -m unittest discover -s tests
+2. App.py -
+    cd backend/python-backend
+    pytest tests/test_app.py
+3. Frontend JS tests use Jest
+    cd frontend
+    npm install
+    npm test -- --watchAll
