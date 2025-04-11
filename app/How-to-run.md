@@ -29,3 +29,10 @@ Pre-requisite: docker
 cd app
 docker-compose build --no-cache
 docker-compose up
+
+# Running front-end unit tests
+Frontend JS tests use Jest.
+
+cd frontend
+npm install
+npm test -- --watchAll
