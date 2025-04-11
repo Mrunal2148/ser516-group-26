@@ -70,7 +70,7 @@ jobs:
           pytest tests/test_app.py
 
       - name: Run Frontend Tests
-        working-directory: frontend
+        working-directory: app/frontend
         run: |
           npm install
           npm test -- --watchAll=false
