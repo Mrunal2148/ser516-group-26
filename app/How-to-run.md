@@ -23,6 +23,7 @@ python save_links.py
 Pre-requisite: maven
 install dependencies : mvn install
 Starting server: mvn spring-boot:run
+Running tests: mvn test
 
 #commands to run after dockerization 
 Pre-requisite: docker
