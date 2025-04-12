@@ -43,20 +43,24 @@ const TestChurnDisplay = () => {
     <div className="test-churn-container">
       <h2 className="test-churn-title">Test Churn for: {repo}</h2>
       <div className="input-group">
-        <label>Start Date:</label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="date-input"
-        />
-        <label>End Date:</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="date-input"
-        />
+      <label htmlFor="start-date">Start Date:</label>
+<input
+  id="start-date"
+  type="date"
+  value={startDate}
+  onChange={(e) => setStartDate(e.target.value)}
+  className="date-input"
+/>
+
+<label htmlFor="end-date">End Date:</label>
+<input
+  id="end-date"
+  type="date"
+  value={endDate}
+  onChange={(e) => setEndDate(e.target.value)}
+  className="date-input"
+/>
+
       </div>
       <button
         onClick={fetchTestChurn}
