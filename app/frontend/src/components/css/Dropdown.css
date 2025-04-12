@@ -1,5 +1,46 @@
+/* 📌 Dropdown Container */
+.dropdown {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+/* 📌 Dropdown Button */
+.chart-select {
+  width: 100%;
+  max-width: 220px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.chart-select:hover {
+  background-color: #218838;
+}
+
+.chart-select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.chart-select:active {
+  transform: scale(0.95);
+}
+
+/* 📌 Responsive Adjustment */
+@media (max-width: 768px) {
   .dropdown {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }  
+    justify-content: center;
+  }
+
+  .chart-select {
+    max-width: 100%;
+  }
+}
