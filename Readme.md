@@ -88,7 +88,6 @@ project-metrics-calculator/
 - **Mrunal Kapure** - Developer  
 - **Parth Patel** - Developer  
 - **Shreya Prakash** - Developer 
-- **Shreya Prakash** - Developer 
 - **Aditya Kumar** - Developer 
 - **Sahithi Karangala** - Developer 
 - **Siddhant Shah** - Developer 
