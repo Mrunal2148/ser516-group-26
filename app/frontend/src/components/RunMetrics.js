@@ -49,7 +49,7 @@ const RunMetrics = () => {
           navigate("/testChurn", { state: { owner, repo } });
           break;
           case "fan-in-fan-out":
-            navigate("/fanmetrics", { state: { owner, repo } });
+            navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
             break;
         default:
           alert("Invalid metric");
