@@ -62,23 +62,8 @@ Step 4: Copy and Store the Token
 
 2. **Start the application:**
    ```bash
-   docker pull mkapure/app-code-comment-coverage-backend:latest
-   docker pull mkapure/app-python-backend:latest
-   docker pull mkapure/app-java-backend:latest
-   docker pull mkapure/app-frontend:latest
-   docker pull mkapure/app-github-service:latest
-   docker pull mkapure/app-fan-in-service:latest
-   docker pull mkapure/app-fan-out-service:latest
-   docker pull mkapure/app-fan-in-fan-out-api:latest
-
-   docker run -d -p 6000:6000 --name app-code-comment-coverage-backend-1 mkapure/app-code-comment-coverage-backend:latest
-   docker run -d -p 5000:5000 --name app-python-backend-1 mkapure/app-python-backend:latest
-   docker run -d -p 8080:8080 --name app-java-backend-1 mkapure/app-java-backend:latest
-   docker run -d -p 3000:3000 --name app-frontend-1 mkapure/app-frontend:latest
-   docker run -d -p 7000:7000 --name app-github-service-1 mkapure/app-github-service:latest
-   docker run -d -p 7100:7100 --name app-fan-in-service-1 mkapure/app-fan-in-service:latest
-   docker run -d -p 7200:7200 --name app-fan-out-service-1 mkapure/app-fan-out-service:latest
-   docker run -d -p 7300:7300 --name app-fan-in-fan-out-api-1 mkapure/app-fan-in-fan-out-api:latest
+    docker-compose build --no-cache
+    docker-compose up
    ```
 3. **Access the application:**
    - App: [http://localhost:3000](http://localhost:3000)  
