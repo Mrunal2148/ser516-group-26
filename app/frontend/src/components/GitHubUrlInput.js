@@ -12,7 +12,8 @@ const GitHubUrlInput = ({ onFilesFetched }) => {
     formData.append('github_url', url);
 
     try {
-      const response = await fetch('http://localhost:8001/fetch-github-folder', {
+      //const response = await fetch('http://localhost:8001/fetch-github-folder', {
+      const response = await fetch('http://localhost:8000/fetch-github-folder', {
         method: 'POST',
         body: formData
       });

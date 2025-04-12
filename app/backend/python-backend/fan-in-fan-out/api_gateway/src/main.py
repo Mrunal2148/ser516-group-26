@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import logging
 import asyncio
+import json
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -440,23 +441,31 @@ async def gateway_combined_multi_metrics(file: UploadFile = File(...), function_
 @app.post("/metrics/combined-scoped-multi")
 async def gateway_combined_scoped_multi_metrics(folder: UploadFile = File(...), scope: str = Form(...)):
     try:
-        content = await folder.read()
-        
+        content = await folder.read()    
+        scope_data = json.loads(scope)
+        selected_files = scope_data.get("selected_files")
+        function_names = scope_data.get("function_names")
+
         async with httpx.AsyncClient() as client:
+            # Create file tuples for both fan-in and fan-out services
             fan_in_file = (folder.filename, content, folder.content_type)
             fan_out_file = (folder.filename, content, folder.content_type)
             
+            scope_json = json.dumps(scope_data)
+            
+            
+            # Send the requests concurrently to the fan-in and fan-out services.
             fan_in_response, fan_out_response = await asyncio.gather(
                 client.post(
                     f"{FANIN_URL}/metrics/fan-in-scoped-multi",
                     files={"folder": fan_in_file},
-                    data={"scope": scope},
+                    data={"scope": scope_json},
                     timeout=60.0
                 ),
                 client.post(
                     f"{FANOUT_URL}/metrics/fan-out-scoped-multi",
                     files={"folder": fan_out_file},
-                    data={"scope": scope},
+                    data={"scope": scope_json},
                     timeout=60.0
                 )
             )
@@ -466,36 +475,34 @@ async def gateway_combined_scoped_multi_metrics(folder: UploadFile = File(...), 
                 fan_out_results = fan_out_response.json()
                 
                 combined_results = {}
-                
 
+                # Combine the fan-in results:
                 for function_name, fan_in_data in fan_in_results["results"].items():
                     if function_name not in combined_results:
                         combined_results[function_name] = {
                             "per_file_results": {}
                         }
                     combined_results[function_name]["total_fan_in"] = fan_in_data["total_fan_in"]
-                    
 
                     for file_path, file_fan_in in fan_in_data["per_file_results"].items():
                         if file_path not in combined_results[function_name]["per_file_results"]:
                             combined_results[function_name]["per_file_results"][file_path] = {}
                         combined_results[function_name]["per_file_results"][file_path]["fan_in"] = file_fan_in
-                
 
+                # Combine the fan-out results:
                 for function_name, fan_out_data in fan_out_results["results"].items():
                     if function_name not in combined_results:
                         combined_results[function_name] = {
                             "per_file_results": {}
                         }
                     combined_results[function_name]["total_fan_out"] = fan_out_data["total_fan_out"]
-                    
 
                     for file_path, file_fan_out in fan_out_data["per_file_results"].items():
                         if file_path not in combined_results[function_name]["per_file_results"]:
                             combined_results[function_name]["per_file_results"][file_path] = {}
                         combined_results[function_name]["per_file_results"][file_path]["fan_out"] = file_fan_out
                 
-                logger.info(f"Combined scoped multi-function metrics calculation successful")
+                logger.info("Combined scoped multi-function metrics calculation successful")
                 return {"results": combined_results}
             else:
                 if fan_in_response.status_code != 200:

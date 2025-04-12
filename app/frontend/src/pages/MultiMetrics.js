@@ -4,7 +4,7 @@ import FogIndexCalculator from "../components/FogIndexCalculator";
 import DefectsRemoved from "../pages/DefectsRemoved";
 import CodeComment from "../components/CodeComment";
 import TestChurnDisplay from "../components/TestChurnDisplay";
-import MetricsForm from "../components/MetricsForm"; // ⬅️ Add this
+import MetricsForm from "../components/MetricsForm";
 import "../components/css/MultiMetrics.css";
 
 const MultiMetrics = () => {

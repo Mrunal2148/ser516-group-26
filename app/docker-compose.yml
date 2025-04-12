@@ -76,6 +76,8 @@ services:
       dockerfile: src/Dockerfile
     ports:
       - "8003:8003"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
 

@@ -5,7 +5,7 @@ import '../components/css/FanInFanOut.css';
 const FanInFanOut = () => {
   return (
     <div className="fan-metrics-container">
-      {/* <h2 className="metrics-title">Fan-In / Fan-Out Metrics</h2> */}
+      {<h2 className="metrics-title">Fan-In / Fan-Out Metrics</h2>}
       <MetricsForm />
     </div>
   );
