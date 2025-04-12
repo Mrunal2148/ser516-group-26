@@ -23,35 +23,26 @@ const MetricsForm = ({ githubUrl }) => {
       try {
         // Using the full repo URL, extract owner and repo from it.
         const parts = githubUrl.split("/");
-        const owner = parts[3]; // Adjust based on the URL structure, e.g., "https://github.com/owner/repo"
+        const owner = parts[3]; // e.g., from "https://github.com/owner/repo"
         const repo = parts[4];
-
-        let data = null;
-        for (const branch of ["main", "master"]) {
-          const res = await fetch("http://localhost:8003/fetch-repo", {
-            method: "POST",
-            body: JSON.stringify({
-              owner: owner,
-              repo: repo,
-              branch: branch,
-              token: token,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (res.ok) {
-            data = await res.json();
-            break;
-          } else {
-            console.warn(`Failed to fetch with branch ${branch}: ${res.status}`);
-          }
-        }
-
-        if (!data) {
-          throw new Error("Failed to fetch ZIP from GitHub on both main and master");
-        }
+    
+        // Remove the branch field so backend can determine it automatically.
+        const res = await fetch("http://localhost:8003/fetch-repo", {
+          method: "POST",
+          body: JSON.stringify({
+            owner,
+            repo,
+            token,        // Provide token if available; omit if not needed
+            path: "",     // Include path if needed, or omit entirely if not used.
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+    
+        if (!res.ok) throw new Error("Failed to fetch repo zip");
+        const data = await res.json();
+    
 
         if (!Array.isArray(data.files)) {
           console.error("data.files is not an array:", data.files);
