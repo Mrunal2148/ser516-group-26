@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import logging
 import asyncio
+import json
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -438,31 +439,33 @@ async def gateway_combined_multi_metrics(file: UploadFile = File(...), function_
         )
 
 @app.post("/metrics/combined-scoped-multi")
-async def gateway_combined_scoped_multi_metrics(folder: UploadFile = File(...)):
+async def gateway_combined_scoped_multi_metrics(folder: UploadFile = File(...), scope: str = Form(...)):
     try:
-        content = await folder.read()
-        
+        content = await folder.read()    
+        scope_data = json.loads(scope)
+        selected_files = scope_data.get("selected_files")
+        function_names = scope_data.get("function_names")
+
         async with httpx.AsyncClient() as client:
             # Create file tuples for both fan-in and fan-out services
             fan_in_file = (folder.filename, content, folder.content_type)
             fan_out_file = (folder.filename, content, folder.content_type)
             
-            # Instead of using a provided 'scope', we now pass an empty scope.
-            # This tells the services to process all files.
-            empty_scope = "{}"  # An empty JSON object as a string
+            scope_json = json.dumps(scope_data)
+            
             
             # Send the requests concurrently to the fan-in and fan-out services.
             fan_in_response, fan_out_response = await asyncio.gather(
                 client.post(
                     f"{FANIN_URL}/metrics/fan-in-scoped-multi",
                     files={"folder": fan_in_file},
-                    data={"scope": empty_scope},
+                    data={"scope": scope_json},
                     timeout=60.0
                 ),
                 client.post(
                     f"{FANOUT_URL}/metrics/fan-out-scoped-multi",
                     files={"folder": fan_out_file},
-                    data={"scope": empty_scope},
+                    data={"scope": scope_json},
                     timeout=60.0
                 )
             )
