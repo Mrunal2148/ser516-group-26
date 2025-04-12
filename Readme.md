@@ -6,6 +6,8 @@ The **Project Metrics Calculator** is a web-based application designed to help d
 - **Fog Index Metric:** Measures the readability of code comments.
 - **Defects Removed Metric:** Evaluates how many defects have been fixed in the codebase.
 - **Code Comment Coverage:** Calculates the percentage of commented code to ensure maintainability.
+- **Test Churn:** Calculates added, deleted and updated metrics.
+- **Fan In / Fan Out:** Calculates fan-in fan-out against metrics.
 
 ## Tech Stack
 - **Frontend:** React.js
@@ -59,45 +61,29 @@ Step 4: Copy and Store the Token
    ```
 
 2. **Start the application:**
+   ```bash
+   docker pull ser516/app-code-comment-coverage-backend:latest
+   docker pull ser516/app-python-backend:latest
+   docker pull ser516/app-java-backend:latest
+   docker pull ser516/app-frontend:latest
+   docker pull ser516/app-github-service:latest
+   docker pull ser516/app-fan-in-service:latest
+   docker pull ser516/app-fan-out-service:latest
+   docker pull ser516/app-fan-in-fan-out-api:latest
 
-## ⚙️ How to Run
-
-### 🐳 Option 1: Run with Docker (Recommended)
-
-> Make sure Docker is installed and running.
-
-```bash
-# Clone the repo
-git clone https://github.com/your-username/metrics-calculator.git
-cd metrics-calculator
-
-# Build all services
-docker build -t app-frontend ./app/frontend
-docker build -t app-java-backend ./app/backend
-docker build -t app-python-backend ./app/backend/python-backend
-docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
-docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
-docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
-docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
-docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
-
-# Run the containers (you can script this or use docker-compose)
-docker run -d -p 6000:6000 --name app-code-comment-coverage-backend-1 ser516/app-code-comment-coverage-backend:latest
-docker run -d -p 5000:5000 --name app-python-backend-1 ser516/app-python-backend:latest
-docker run -d -p 8080:8080 --name app-java-backend-1 ser516/app-java-backend:latest
-docker run -d -p 3000:3000 --name app-frontend-1 ser516/app-frontend:latest
-docker run -d -p 7000:7000 --name app-github-service-1 ser516/app-github-service:latest
-docker run -d -p 7100:7100 --name app-fan-in-service-1 ser516/app-fan-in-service:latest
-docker run -d -p 7200:7200 --name app-fan-out-service-1 ser516/app-fan-out-service:latest
-docker run -d -p 7300:7300 --name app-fan-in-fan-out-api-1 ser516/app-fan-in-fan-out-api:latest
-
-
-
+   docker run -d -p 6000:6000 --name app-code-comment-coverage-backend-1 ser516/app-code-comment-coverage-backend:latest
+   docker run -d -p 5000:5000 --name app-python-backend-1 ser516/app-python-backend:latest
+   docker run -d -p 8080:8080 --name app-java-backend-1 ser516/app-java-backend:latest
+   docker run -d -p 3000:3000 --name app-frontend-1 ser516/app-frontend:latest
+   docker run -d -p 7000:7000 --name app-github-service-1 ser516/app-github-service:latest
+   docker run -d -p 7100:7100 --name app-fan-in-service-1 ser516/app-fan-in-service:latest
+   docker run -d -p 7200:7200 --name app-fan-out-service-1 ser516/app-fan-out-service:latest
+   docker run -d -p 7300:7300 --name app-fan-in-fan-out-api-1 ser516/app-fan-in-fan-out-api:latest
+   ```
 3. **Access the application:**
-   - Frontend: [http://localhost:3000](http://localhost:3000)  
-   - Java Backend: [http://localhost:8080](http://localhost:8080)  
-   - Python Backend: [http://localhost:5005](http://localhost:5005)  
-```
+   - App: [http://localhost:3000](http://localhost:3000)  
+
+---
 
 ## Project Structure
 ```
@@ -117,119 +103,9 @@ project-metrics-calculator/
 - **Mrunal Kapure** - Developer  
 - **Parth Patel** - Developer  
 - **Shreya Prakash** - Developer
-
-
-# 📊 Metrics Calculator
-
-**Metrics Calculator** is a modular web application designed to compute and analyze code and project metrics, providing insights across multiple services. It leverages a microservice architecture built using Python, Java, and React, and uses GitHub Actions for CI/CD.
-
----
-
-## 🚀 Features
-
-- Multi-container microservices architecture
-- Code comment and coverage analysis
-- GitHub repository metrics processing
-- Fan-in/fan-out service-based data flow
-- Interactive frontend built with React
-- CI/CD with Docker and GitHub Actions
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend:** React
-- **Backend:** Python (Flask), Java (Spring Boot)
-- **Containerization:** Docker
-- **CI/CD:** GitHub Actions
-- **Testing:** PyTest, Unittest, Jest
-
----
-
-## 📁 Project Structure
-
-metrics-calculator/ │ ├── app/ │ ├── frontend/ # React frontend │ └── backend/ │ ├── python-backend/ │ │ ├── code-comment/ # Code comment coverage service │ │ └── fan-in-fan-out/ │ │ ├── api_gateway/ # API Gateway │ │ ├── fan_in_service/ # Fan-in service │ │ ├── fan_out_service/ # Fan-out service │ │ └── GitHub_service/ # GitHub metrics processor │ └── java-backend/ # Java backend module │ ├── .github/workflows/ │ └── ci-cd.yml # CI/CD GitHub Actions workflow
-
-
----
-
-## ⚙️ GitHub Actions: CI/CD Pipeline
-
-This app uses GitHub Actions for automating the build, test, and deploy process.
-
-### 🔁 Triggered On
-
-- Push to `Period-3` and `dev` branches
-- Pull requests to `Period-3` and `dev`
-- Manual dispatch (`workflow_dispatch`)
-
-### 🔨 Build Job
-
-- Checks out the repository
-- Sets up Docker Buildx
-- Builds and tags Docker images:
-  - `app-frontend`
-  - `app-java-backend`
-  - `app-python-backend`
-  - `app-code-comment-coverage-backend`
-  - `app-fan-in-fan-out-api`
-  - `app-fan-in-service`
-  - `app-fan-out-service`
-  - `app-github-service`
-- Logs into Docker Hub using secrets
-- Pushes all tagged images to Docker Hub
-
-### ✅ Test Job
-
-- Runs after the `build` job
-- Installs Python 3.10
-- Installs dependencies from `requirements.txt`
-- Runs:
-  - Unittest for `code-comment` module
-  - PyTest for `test_app.py`
-  - Frontend tests using Jest
-
----
-
-## 🐳 Docker Images (Pushed to Docker Hub)
-
-- `mkapure/app-frontend:latest`
-- `mkapure/app-java-backend:latest`
-- `mkapure/app-python-backend:latest`
-- `mkapure/app-code-comment-coverage-backend:latest`
-- `mkapure/app-fan-in-fan-out-api:latest`
-- `mkapure/app-fan-in-service:latest`
-- `mkapure/app-fan-out-service:latest`
-- `mkapure/app-github-service:latest`
-
----
-
-## 📦 Requirements
-
-- Docker
-- Node.js & npm (for frontend)
-- Python 3.10+
-- Java 17+ (for Java backend)
-
----
-
-## 🧪 Running Tests Locally
-
-```bash
-# Frontend
-cd app/frontend
-npm install
-npm test
-
-# Python backend
-cd app/backend/python-backend
-pip install -r requirements.txt
-pytest
-
-# Code comment module
-cd app/backend/python-backend/code-comment
-PYTHONPATH=. python -m unittest discover -s tests
-```
-
+- **Ripudaman Singh** - Developer
+- **Sahithi Karangala** - Developer
+- **Aditya Kumar** - Developer
+- **Siddhnat Shah** - Developer
 
 
