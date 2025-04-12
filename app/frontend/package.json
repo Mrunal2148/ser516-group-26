@@ -12,7 +12,7 @@
     "@mui/icons-material": "^6.4.3",
     "@mui/material": "^6.4.3",
     "@shadcn/ui": "^0.0.4",
-    "axios": "^0.27.2",
+    "axios": "^0.30.0",
     "chart.js": "^4.4.7",
     "pdfjs-dist": "^4.9.155",
     "react": "^18.2.0",
