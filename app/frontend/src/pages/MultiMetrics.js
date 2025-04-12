@@ -45,7 +45,7 @@ const MultiMetrics = () => {
             </section>
           )}
 
-{(selectedMetrics.includes("fan-in") || selectedMetrics.includes("fan-out")) && (
+        {(selectedMetrics.includes("fan-in-fan-out"))&& (
             <MetricsForm githubUrl={githubUrl} owner={owner} repo={repo} />
           )}
         </>
