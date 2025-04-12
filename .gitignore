@@ -11,3 +11,5 @@ links.json
 /venv/
 app/.env
 .DS_Store
+/app/frontend/node_modules/
+/venv/
