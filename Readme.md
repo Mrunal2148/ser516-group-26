@@ -6,6 +6,8 @@ The **Project Metrics Calculator** is a web-based application designed to help d
 - **Fog Index Metric:** Measures the readability of code comments.
 - **Defects Removed Metric:** Evaluates how many defects have been fixed in the codebase.
 - **Code Comment Coverage:** Calculates the percentage of commented code to ensure maintainability.
+- **Test Churn:** Calculates added, deleted and updated metrics.
+- **Fan In / Fan Out:** Calculates fan-in fan-out against metrics.
 
 ## Tech Stack
 - **Frontend:** React.js
@@ -60,13 +62,11 @@ Step 4: Copy and Store the Token
 
 2. **Start the application:**
    ```bash
-   docker-compose build --no-cache
-   docker-compose up
+    docker-compose build --no-cache
+    docker-compose up
    ```
 3. **Access the application:**
-   - Frontend: [http://localhost:3000](http://localhost:3000)  
-   - Java Backend: [http://localhost:8080](http://localhost:8080)  
-   - Python Backend: [http://localhost:5005](http://localhost:5005)  
+   - App: [http://localhost:3000](http://localhost:3000)  
 
 ---
 
@@ -87,10 +87,10 @@ project-metrics-calculator/
 - **Kaumudi Gulbarga** - Developer  
 - **Mrunal Kapure** - Developer  
 - **Parth Patel** - Developer  
-- **Shreya Prakash** - Developer 
-- **Aditya Kumar** - Developer 
-- **Sahithi Karangala** - Developer 
-- **Siddhant Shah** - Developer 
-- **Ripudaman Singh** - Developer  
+- **Shreya Prakash** - Developer
+- **Ripudaman Singh** - Developer
+- **Sahithi Karangala** - Developer
+- **Aditya Kumar** - Developer
+- **Siddhnat Shah** - Developer
 
 
