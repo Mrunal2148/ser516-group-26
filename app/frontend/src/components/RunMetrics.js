@@ -114,21 +114,16 @@ const RunMetrics = () => {
           <input
             type="checkbox"
             id="fan-in-fan-out"
-            checked={selectedMetrics.includes("fan-in")}
-            onChange={() => handleMetricChange("fan-in")}
+            checked={selectedMetrics.includes("fan-in-fan-out")}
+            onChange={() => handleMetricChange("fan-in-fan-out")}
           />
-          <label htmlFor="fan-in-fan-out">Fan-in</label>
+          <label htmlFor="fan-in-fan-out">Fan in Fan out</label>
         </div>
-        <div className="checkbox">
-          <input
-            type="checkbox"
-            id="fan-out"
-            checked={selectedMetrics.includes("fan-out")}
-            onChange={() => handleMetricChange("fan-out")}
-          />
-          <label htmlFor="fan-out">Fan-out</label>
-        </div>
-
+        {selectedMetrics.includes("fan-in-fan-out") && (
+          <p style={{ fontSize: "12px", color: "gray", marginTop: "4px" }}>
+            <strong>Note:</strong> The Fan-in/Fan-out metric is only supported for Java repositories.
+          </p>
+        )} 
       </div>
 
       <button 
