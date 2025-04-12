@@ -1,0 +1,89 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - Period-3
+      - dev
+  pull_request:
+    branches:
+      - Period-3
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and Tag Docker Images
+        run: |
+          docker build -t app-frontend ./app/frontend
+          docker build -t app-java-backend ./app/backend
+          docker build -t app-python-backend ./app/backend/python-backend
+          docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
+          docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
+          docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
+          docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
+          docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Tag and Push Images
+        run: |
+          docker tag app-frontend mkapure/app-frontend:latest
+          docker tag app-java-backend mkapure/app-java-backend:latest
+          docker tag app-python-backend mkapure/app-python-backend:latest
+          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:latest
+          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:latest
+          docker tag app-fan-in-service mkapure/app-fan-in-service:latest
+          docker tag app-fan-out-service mkapure/app-fan-out-service:latest
+          docker tag app-github-service mkapure/app-github-service:latest
+
+          docker push mkapure/app-frontend:latest
+          docker push mkapure/app-java-backend:latest
+          docker push mkapure/app-python-backend:latest
+          docker push mkapure/app-code-comment-coverage-backend:latest
+          docker push mkapure/app-fan-in-fan-out-api:latest
+          docker push mkapure/app-fan-in-service:latest
+          docker push mkapure/app-fan-out-service:latest
+          docker push mkapure/app-github-service:latest
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r app/backend/python-backend/requirements.txt
+          pip install pytest
+
+      - name: Run Code Comment Coverage Tests
+        run: |
+          cd app/backend/python-backend/code-comment
+          PYTHONPATH=. python -m unittest discover -s tests
+
+      - name: Run app.py tests
+        run: |
+          cd app/backend/python-backend
+          pytest tests/test_app.py
+
+      - name: Run Frontend Tests
+        working-directory: app/frontend
+        run: |
+          npm install
+          npm test -- --watchAll=false

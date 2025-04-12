@@ -108,7 +108,7 @@ public class TestChurnService {
         return closestCommitSha;
     }
 
-    private long dateDifferenceInDays(String date1, String date2) {
+     long dateDifferenceInDays(String date1, String date2) {
     try {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date d1 = format.parse(date1);
@@ -363,7 +363,7 @@ public class TestChurnService {
     //     return testChurnMetrics;
     // }
     
-    private Map<String, String> normalizeFilePaths(Map<String, String> testFiles) {
+     Map<String, String> normalizeFilePaths(Map<String, String> testFiles) {
         Map<String, String> normalizedFiles = new HashMap<>();
     
         for (Map.Entry<String, String> entry : testFiles.entrySet()) {
@@ -374,7 +374,7 @@ public class TestChurnService {
         return normalizedFiles;
     }
     
-    private String extractTestMethodBody(String content, String methodName) {
+     String extractTestMethodBody(String content, String methodName) {
         StringBuilder methodBody = new StringBuilder();
         String[] lines = content.split("\n");
     
@@ -397,7 +397,7 @@ public class TestChurnService {
         return methodBody.toString();
     }
     
-    private Set<String> extractTestCases(String content) {
+     Set<String> extractTestCases(String content) {
         Set<String> testCases = new HashSet<>();
         String[] lines = content.split("\n");
         boolean insideTestMethod = false;
@@ -441,7 +441,7 @@ public class TestChurnService {
     
     
 
-    private boolean isTestFile(String filePath) {
+     boolean isTestFile(String filePath) {
         String lowerCasePath = filePath.toLowerCase();
     
         if (lowerCasePath.contains("/test/") || lowerCasePath.contains("/tests/") ||
