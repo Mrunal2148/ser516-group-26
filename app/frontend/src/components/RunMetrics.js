@@ -61,7 +61,7 @@ const RunMetrics = () => {
 
       <SelectDropdown
         label="Select Repository"
-        options={links.slice(1).map((link) => ({ label: link, value: link }))}
+        options={links.map((link) => ({ label: link, value: link }))}
         selectedValue={selectedLink}
         onSelect={setSelectedLink}
       />
