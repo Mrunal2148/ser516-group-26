@@ -1,4 +1,9 @@
 Flask==2.3.2
 Flask-Cors==5.0.0
+
+pytest
+requests-mock
+
 werkzeug==2.3.3
 pytest
+
