@@ -26,9 +26,14 @@ public class DefectsRemovedService {
     @Value("${github.token}")
     private String githubToken;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
+  
+    public DefectsRemovedService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
+    }
     public Map<String, Object> getBugStatistics(String owner, String repo) {
         Map<String, Integer> weeklyClosedBugs = new HashMap<>();
         Map<String, Integer> weeklyOpenedBugs = new HashMap<>();
@@ -81,7 +86,7 @@ public class DefectsRemovedService {
         return parseIssues(response.getBody());
     }
 
-    private Map<String, Object> parseIssues(String responseBody) {
+     Map<String, Object> parseIssues(String responseBody) {
         Map<String, Integer> weeklyClosedBugs = new HashMap<>();
         Map<String, Integer> weeklyOpenedBugs = new HashMap<>();
         int totalOpenedBugs = 0;
@@ -138,7 +143,7 @@ public class DefectsRemovedService {
         source.forEach((key, value) -> target.merge(key, value, Integer::sum));
     }
 
-    private LinkedHashMap<String, Integer> sortWeeklyMap(Map<String, Integer> unsortedMap) {
+     LinkedHashMap<String, Integer> sortWeeklyMap(Map<String, Integer> unsortedMap) {
         return unsortedMap.entrySet().stream()
                 .sorted(Comparator.comparing(entry -> {
                     String[] parts = entry.getKey().split("-W");

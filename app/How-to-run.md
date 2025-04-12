@@ -42,6 +42,7 @@ echo $JAVA_HOME
 # macOS:
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
+
 # Windows:
 # Set JAVA_HOME in Environment Variables to:
 # C:\Program Files\Java\jdk-17
@@ -57,7 +58,7 @@ cd ..
 pytest tests/ -v
 ```
 
----
+
 
 ### 💻 Fan-Out Service
 
@@ -94,7 +95,7 @@ cd ..
 pytest tests/ -v
 ```
 
----
+
 
 ### 💻 Java Backend (Defects Removed Service)
 
@@ -103,9 +104,7 @@ cd app/backend
 
 # Run unit tests with Maven
 mvn test
-```
 
----
 
 ## 💻 Frontend (React App)
 
@@ -121,7 +120,7 @@ npm install
 npm start
 ```
 
----
+
 
 ## Unit Testing – Frontend
 
@@ -144,3 +143,28 @@ npm test -- --watchAll
 #### APPRECIATION MESSAGE FROM SER516 Group 26 :)
 
 ---
+=======
+Pre-requisite: maven
+install dependencies : mvn install
+Starting server: mvn spring-boot:run
+Running tests: mvn test
+
+#commands to run after dockerization 
+Pre-requisite: docker
+cd app
+docker-compose build --no-cache
+docker-compose up
+
+
+Test commands -
+1. Code Comment Coverage - 
+    cd backend/python-backend/code-comment/tests
+    python -m unittest discover -s tests
+2. App.py -
+    cd backend/python-backend
+    pytest tests/test_app.py
+3. Frontend JS tests use Jest
+    cd frontend
+    npm install
+    npm test -- --watchAll
+
