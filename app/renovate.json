@@ -1,0 +1,9 @@
+{
+    "extends": ["config:base"],
+    "dependencyDashboard": true,
+    "labels": ["dependencies"],
+    "prHourlyLimit": 2,
+    "prConcurrentLimit": 5,
+    "baseBranches": ["dev"]
+  }
+  

@@ -10,4 +10,10 @@ links.json
 /frontend/node_modules/
 /venv/
 app/.env
+
 .DS_Store
+
+.DS_Store
+/app/frontend/node_modules/
+/venv/
+
