@@ -1,0 +1,65 @@
+/* MetricsForm.css */
+
+.metrics-form-wrapper {
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    margin-top: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .repo-info {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .repo-info b {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .repo-info a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+  
+  .method-input-container {
+    margin-bottom: 1rem;
+  }
+  
+  .method-input {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .add-method-btn,
+  .calculate-btn {
+    margin-top: 10px;
+    background-color: #007bff;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .calculate-btn {
+    margin-left: 10px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  
+  .results-section {
+    margin-top: 2rem;
+    border-top: 1px solid #ccc;
+    padding-top: 1rem;
+  }
+  

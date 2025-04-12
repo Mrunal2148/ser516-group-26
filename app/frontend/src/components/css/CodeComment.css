@@ -1,185 +1,207 @@
 /* 📌 Main Container */
 .code-comment-container {
-    width: 100%;
-    margin: auto;
-    text-align: center;
-    padding: 10px;
+  width: 100%;
+  margin: auto;
+  text-align: center;
+  padding: 10px;
+}
+
+/* 📌 Responsive Table Container */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
 }
 
 /* 📌 Styled Table */
 .code-comment-table {
-    width: 80%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    margin: 20px auto;
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  margin: 20px auto;
 }
 
 .code-comment-table th, 
 .code-comment-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: center;
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
 }
 
 .code-comment-table th {
-    background-color: #007bff;
-    color: white;
-    text-transform: uppercase;
+  background-color: #007bff;
+  color: white;
+  text-transform: uppercase;
 }
 
 .code-comment-table tr:nth-child(even) {
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 .code-comment-table tr:hover {
-    background-color: #ddd;
+  background-color: #ddd;
 }
 
 /* 📌 Dropdown Container */
 .chart-dropdown-container {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 /* 📌 Styled Dropdown Button */
 .chart-select {
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: #28a745;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+  width: 100%;
+  max-width: 220px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* 📌 Dropdown Icon */
 .chart-select::after {
-    content: " ▼";
-    font-size: 12px;
+  content: " ▼";
+  font-size: 12px;
 }
 
-/* 📌 Hover and Click Effects */
 .chart-select:hover {
-    background-color: #218838;
+  background-color: #218838;
 }
 
 .chart-select:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  outline: none;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.chart-select:active {
+  transform: scale(0.95);
 }
 
 /* 📌 Graph Container */
 .graph-container-comment {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 
-  .graph-section-comment {
-    margin-top: 12px;
-    margin-bottom: 12px;
-    flex: 1;
-    min-width: 300px;
-    max-height: 400px;
-  }
+.graph-section-comment {
+  flex: 1 1 45%;
+  min-width: 300px;
+  max-height: 400px;
+}
 
-  .card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
+/* 📌 Card Styling */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
 /* 📌 Title Styling */
 .code-comment-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-    text-transform: uppercase;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 
 /* 📌 Repository URL Styling */
 .code-comment-repo {
-    font-size: 16px;
-    font-weight: bold;
-    color: #007bff;
-    margin-bottom: 15px;
-    display: inline-block;
-    background: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 5px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 15px;
+  display: inline-block;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* 📌 Benchmark Container and Buttons */
 .chart-benchmark-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .benchmark-button {
-    padding: 8px 12px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .benchmark-button:hover {
-    background-color: #45a049;
-  }
-  
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
 
-  .benchmark-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .benchmark-modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 50%;
-    position: relative;
-  }
-  
-  .close-modal {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  
-  .add-benchmark-button {
-    margin-left: 10px;
-    padding: 8px 12px;
-    background-color: mediumslateblue;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .add-benchmark-button:hover {
-    background-color: #218838;
-  }
-  
+.benchmark-button, .add-benchmark-button {
+  padding: 8px 12px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
 
-  
+.benchmark-button {
+  background-color: #4caf50;
+}
+
+.benchmark-button:hover {
+  background-color: #45a049;
+}
+
+.add-benchmark-button {
+  background-color: mediumslateblue;
+}
+
+.add-benchmark-button:hover {
+  background-color: #218838;
+}
+
+/* 📌 Benchmark Modal */
+.benchmark-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.benchmark-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* 📌 Responsive Adjustments */
+@media (max-width: 768px) {
+  .graph-section-comment {
+      flex: 1 1 100%;
+  }
+
+  .chart-select, .benchmark-button, .add-benchmark-button {
+      max-width: 100%;
+  }
+
+  .code-comment-table {
+      min-width: 100%;
+  }
+}

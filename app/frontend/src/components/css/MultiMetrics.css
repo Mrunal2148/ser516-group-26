@@ -1,18 +1,77 @@
+
+
+
+
+/* 📌 Multi-Metrics Container */
 .multi-metrics-container {
     width: 100%;
     margin: auto;
     text-align: center;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
+/* 📌 Title Styling */
 .multi-metrics-title {
     font-size: 24px;
     font-weight: bold;
+    color: #333;
     margin-bottom: 15px;
+    text-transform: uppercase;
 }
 
+
+/* 📌 No Metrics Selected */
 .no-metrics-selected {
-    color: red;
+    color: #dc2626;
     font-weight: bold;
     margin-top: 20px;
+    padding: 10px;
+    background-color: #fee2e2;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
+.multi-metrics-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  
+  .multi-metrics-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .metric-section {
+    background: #ffffff;
+    border: 1px solid #e3e3e3;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .metric-section h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #333;
+  }
+  
+
+/* 📌 Responsive Tweak */
+@media (max-width: 768px) {
+    .multi-metrics-container {
+        padding: 15px;
+    }
+} 
+

@@ -7,7 +7,7 @@ import sahithiImage from "./css/sahithiImage.png"
 import siddhantImage from "./css/siddhantImage.jpg"
 //used a placeholder for the below two missing images.
 import adityaImage from "./css/placeholderimage.jpg"
-import ripudamanImage from "./css/placeholderimage.jpg"
+import ripudamanImage from "./css/ripudamanImage.jpeg"
 
 const teamMembers = [
     {

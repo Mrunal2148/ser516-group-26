@@ -48,6 +48,9 @@ const RunMetrics = () => {
         case "test-churn":
           navigate("/testChurn", { state: { owner, repo } });
           break;
+          case "fan-in-fan-out":
+            navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
+            break;
         default:
           alert("Invalid metric");
           break;
@@ -61,7 +64,7 @@ const RunMetrics = () => {
 
       <SelectDropdown
         label="Select Repository"
-        options={links.slice(1).map((link) => ({ label: link, value: link }))}
+        options={links.map((link) => ({ label: link, value: link }))}
         selectedValue={selectedLink}
         onSelect={setSelectedLink}
       />
@@ -107,6 +110,20 @@ const RunMetrics = () => {
           />
           <label htmlFor="test-churn">Test Churn</label>
         </div>
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="fan-in-fan-out"
+            checked={selectedMetrics.includes("fan-in-fan-out")}
+            onChange={() => handleMetricChange("fan-in-fan-out")}
+          />
+          <label htmlFor="fan-in-fan-out">Fan in Fan out</label>
+        </div>
+        {selectedMetrics.includes("fan-in-fan-out") && (
+          <p style={{ fontSize: "12px", color: "gray", marginTop: "4px" }}>
+            <strong>Note:</strong> The Fan-in/Fan-out metric is only supported for Java repositories.
+          </p>
+        )} 
       </div>
 
       <button 
