@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import DirectoryTree from "./DirectoryTree";
 import "../components/css/MetricsForm.css";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import FanInFanOutChart from "./FanInFanOutChart";
+
 
 const token = process.env.REACT_APP_GITHUB_TOKEN;
 
@@ -156,17 +159,26 @@ const MetricsForm = ({ githubUrl }) => {
           </button>
         </form>
       )}
-
       {results && (
-        <div className="results">
-          {Object.entries(results).map(([method, data]) => (
-            <div key={method}>
-              <strong>{method}</strong>
-              <p>Fan-in: {data.total_fan_in ?? data.fan_in}</p>
-              <p>Fan-out: {data.total_fan_out ?? data.fan_out}</p>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="results">
+            {Object.entries(results).map(([method, data]) => (
+              <div key={method}>
+                <strong>{method}</strong>
+                <p>Fan-in: {data.total_fan_in ?? data.fan_in}</p>
+                <p>Fan-out: {data.total_fan_out ?? data.fan_out}</p>
+              </div>
+            ))}
+          </div>
+
+          <FanInFanOutChart
+            data={Object.entries(results).map(([method, data]) => ({
+              function: method,
+              fanIn: data.total_fan_in ?? data.fan_in,
+              fanOut: data.total_fan_out ?? data.fan_out,
+            }))}
+          />
+        </>
       )}
     </div>
   );
