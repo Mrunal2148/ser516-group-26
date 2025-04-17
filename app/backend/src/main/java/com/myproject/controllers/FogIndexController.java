@@ -13,6 +13,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myproject.utils.FogIndexCalculator;
 
+import com.myproject.models.FogIndexResponse;
+
 @RestController
 @RequestMapping("/api/fog-index")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -23,13 +25,15 @@ public class FogIndexController {
     private final FogIndexCalculator calculator = new FogIndexCalculator();  //  Use a single instance
 
     @GetMapping("/calculate")
-    public ResponseEntity<Map<String, Object>> calculateFogIndex(@RequestParam String githubZipUrl) {
+    public FogIndexResponse calculateFogIndex(@RequestParam String githubZipUrl) {
         try {
             System.out.println("Received request for: " + githubZipUrl);
             String defaultBranch = calculator.getDefaultBranch(githubZipUrl);
             System.out.println("default branch : "+defaultBranch);
             if (defaultBranch == null) {
-                return ResponseEntity.status(500).body(Collections.singletonMap("error", "Failed to determine default branch"));
+                return new FogIndexResponse(new Date(), Collections.singletonList(
+                    Map.of("error", "Failed to determine default branch")
+                ));
             }
 
             String correctedZipUrl = githubZipUrl.replace("/archive/main.zip", "/archive/refs/heads/" + defaultBranch + ".zip");
@@ -64,14 +68,13 @@ public class FogIndexController {
             saveData(repoList);
             System.out.println(" Saved Data for: " + truncatedRepoName);
             result.put("message", "Calculation successful");
-            return ResponseEntity.ok(result);
+            return new FogIndexResponse(new Date(), Collections.singletonList(result));
 
         } catch (Exception e) {
             System.err.println("Error calculating Fog Index: " + e.getMessage());
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Failed to process the request");
-            errorResponse.put("details", e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return new FogIndexResponse(new Date(), Collections.singletonList(
+                Map.of("error", "Failed to process the request", "details", e.getMessage())
+            ));
         }
     }
 
