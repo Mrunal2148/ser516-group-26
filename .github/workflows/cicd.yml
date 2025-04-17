@@ -5,10 +5,14 @@ on:
     branches:
       - Period-3
       - dev
+    tags:
+      - '*'  
   pull_request:
     branches:
       - Period-3
       - dev
+  release:
+    types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
 
 jobs:
