@@ -1,34 +1,60 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from utils import clone_repo, run_jacoco, extract_coverage, find_pom_directory
 import os
+import tempfile
+import subprocess
+import git
+import shutil
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route("/metrics/test-coverage", methods=["GET"])
-def get_test_coverage():
+def test_coverage():
     repo_url = request.args.get("repo_url")
     if not repo_url:
-        return jsonify({"error": "Missing GitHub URL"}), 400
+        return jsonify({"error": "Missing repo URL"}), 400
 
+    temp_dir = tempfile.mkdtemp()
     try:
-        repo_path = clone_repo(repo_url)
-        maven_path = find_pom_directory(repo_path)
-        if not maven_path:
-            return jsonify({"error": "No pom.xml found in this GitHub repo"}), 400
+        git.Repo.clone_from(repo_url, temp_dir)
 
-        success = run_jacoco(maven_path)
-        if not success:
-            return jsonify({"error": "JaCoCo build or test failed. Likely not a valid Maven Java project."}), 500
+        # Find pom.xml
+        pom_dir = None
+        for root, _, files in os.walk(temp_dir):
+            if "pom.xml" in files:
+                pom_dir = root
+                break
 
-        html_path = os.path.join(maven_path, "target", "site", "jacoco", "index.html")
-        coverage = extract_coverage(html_path)
-        return jsonify({"coverage": coverage, "repo": repo_url}), 200
+        if not pom_dir:
+            return jsonify({"error": "No pom.xml found"}), 400
+
+        subprocess.run(["mvn", "verify"], cwd=pom_dir, check=True)
+
+        report_path = os.path.join(pom_dir, "target", "site", "jacoco", "index.html")
+        if not os.path.exists(report_path):
+            subprocess.run([
+                "mvn",
+                "org.jacoco:jacoco-maven-plugin:0.8.10:prepare-agent",
+                "test",
+                "org.jacoco:jacoco-maven-plugin:0.8.10:report"
+            ], cwd=pom_dir, check=True)
+
+        if not os.path.exists(report_path):
+            return jsonify({"error": "JaCoCo report not found"}), 500
+
+        # Copy report to Downloads folder
+        downloads_path = os.path.expanduser("~/Downloads")
+        dest_path = os.path.join(downloads_path, "test_coverage_report.html")
+        shutil.copy(report_path, dest_path)
+
+        return jsonify({
+            "message": "Report downloaded to your Downloads folder",
+            "download_path": "/downloads/test_coverage_report.html"
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8004)
-# 
