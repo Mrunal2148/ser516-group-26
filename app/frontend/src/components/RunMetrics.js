@@ -62,28 +62,28 @@ const RunMetrics = () => {
     }
   };
 
-  const handleTestCoverage = async () => {
-    try {
-      const response = await fetch(`http://localhost:8004/metrics/test-coverage?repo_url=${selectedLink}`);
-      const data = await response.json();
+  // const handleTestCoverage = async () => {
+  //   try {
+  //     const response = await fetch(`http://localhost:8004/metrics/test-coverage?repo_url=${selectedLink}`);
+  //     const data = await response.json();
   
-      if (data.message) {
-        alert(data.message); // optional toast
-      }
+  //     if (data.message) {
+  //       alert(data.message); // optional toast
+  //     }
   
-      if (data.download_path) {
-        const link = document.createElement('a');
-        link.href = `http://localhost:8004${data.download_path}`;
-        link.download = "test_coverage_report.html";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (err) {
-      console.error("Failed to fetch test coverage:", err);
-      alert("Something went wrong. Please try again.");
-    }
-  };
+  //     if (data.download_path) {
+  //       const link = document.createElement('a');
+  //       link.href = `http://localhost:8004${data.download_path}`;
+  //       link.download = "test_coverage_report.html";
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       document.body.removeChild(link);
+  //     }
+  //   } catch (err) {
+  //     console.error("Failed to fetch test coverage:", err);
+  //     alert("Something went wrong. Please try again.");
+  //   }
+  // };
   
 
   return (
