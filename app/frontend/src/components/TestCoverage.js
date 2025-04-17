@@ -61,13 +61,25 @@ const TestCoverage = () => {
           <h2 className="report-title">Test Coverage Report</h2>
           <p><strong>Status:</strong> {message}</p>
           {reportAvailable && (
-            <a
-              href={reportUrl}
-              download
-              className="download-report-button"
-            >
-              Download Report
-            </a>
+            <>
+              <a
+                href={reportUrl}
+                download
+                className="download-report-button"
+              >
+                Download Report
+              </a>
+              <iframe
+                src="http://localhost:8004/metrics/test-coverage-report"
+                title="Test Coverage Report"
+                style={{
+                  width: "100%",
+                  height: "600px",
+                  border: "1px solid #ccc",
+                  marginTop: "1rem",
+                }}
+              />
+            </>
           )}
         </div>
       )}
