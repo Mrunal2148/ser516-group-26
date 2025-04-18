@@ -121,6 +121,56 @@ def analyze_repository():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+from datetime import datetime, timezone
+
+@app.route("/api/github/code-comment-coverage", methods=["GET"])
+def analyze_repository_query():
+    """Analyze repository via query parameters."""
+    owner = request.args.get("owner")
+    repo = request.args.get("repo")
+
+    if not owner or not repo:
+        return jsonify({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": [],
+            "message": "Both 'owner' and 'repo' query parameters are required"
+        }), 400
+
+    repo_url = f"https://github.com/{owner}/{repo}"
+    repo_path = f"/tmp/{repo}"
+
+    try:
+        clone_repo(repo_url, repo_path)
+        code_files = get_code_files(repo_path)
+        total_lines, comment_lines, coverage = calculate_comment_coverage(code_files)
+
+        save_to_json(repo_url, total_lines, comment_lines, coverage)
+        shutil.rmtree(repo_path)
+
+        response = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": [
+                {
+                    "repo_url": repo_url,
+                    "owner": owner,
+                    "repo": repo,
+                    "total_lines": total_lines,
+                    "comment_lines": comment_lines,
+                    "coverage": coverage
+                }
+            ]
+        }
+
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": [],
+            "message": f"Error: {str(e)}"
+        }), 500
+
+
 @app.route("/get_coverage_data", methods=["GET"])
 def get_coverage_data():
     """Fetch stored coverage data."""
