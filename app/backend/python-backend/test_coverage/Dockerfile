@@ -11,6 +11,8 @@ WORKDIR /app
 
 # Copy app code and dependencies
 COPY requirements.txt .
+COPY ./templates /app/templates
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY ./src /app
