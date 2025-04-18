@@ -1,16 +1,10 @@
 package com.myproject.controllers;
 
 import com.myproject.services.TestChurnService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/test-churn")
@@ -30,46 +24,54 @@ public class TestChurnController {
             @RequestParam String startDate,
             @RequestParam String endDate
     ) {
-        Map<String, Object> testChurn = testChurnService.calculateTestChurn(owner, repo, startDate, endDate);
+        // 1. Invoke the service
+        Map<String, Object> raw = testChurnService.calculateTestChurn(owner, repo, startDate, endDate);
 
-        // If a report is generated, add the download link
-        if (testChurn.containsKey("report_path")) {
-            String reportPath = (String) testChurn.get("report_path");
-            File reportFile = new File(reportPath);
+        // 2. Use the endDate parameter as the timestamp at midnight UTC
+        String timestamp = endDate + "T00:00:00Z";
 
-            if (reportFile.exists()) {
-                testChurn.put("report_download_url", "/api/test-churn/download-report");
-            } else {
-                testChurn.put("report_download_url", "Report not found");
-            }
+        // 3. Build the 'data' array from the three churn metrics
+        List<LinkedHashMap<String, Object>> data = new ArrayList<>();
+        for (String key : List.of("added_tests", "deleted_tests", "modified_tests")) {
+            Object val = raw.get(key);
+            int score = (val instanceof Number) ? ((Number) val).intValue() : 0;
+
+            LinkedHashMap<String, Object> entry = new LinkedHashMap<>();
+            entry.put("class_name", key);
+            entry.put("score",       score);
+            data.add(entry);
         }
 
-        return ResponseEntity.ok(testChurn);
+        // 4. Assemble final JSON
+        LinkedHashMap<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", timestamp);
+        response.put("data",      data);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/download-report")
     public ResponseEntity<byte[]> downloadReport() {
+        // unchanged
         try {
-            Path reportPath = Paths.get("test_churn_report.md");
-            File reportFile = reportPath.toFile();
+            java.nio.file.Path reportPath = java.nio.file.Paths.get("test_churn_report.md");
+            java.io.File reportFile = reportPath.toFile();
 
             if (!reportFile.exists()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(("Report file not found!").getBytes());
+                return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                        .body("Report file not found!".getBytes());
             }
 
-            byte[] reportBytes = Files.readAllBytes(reportPath);
+            byte[] bytes = java.nio.file.Files.readAllBytes(reportPath);
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.add(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=test_churn_report.md");
+            headers.add(org.springframework.http.HttpHeaders.CONTENT_TYPE, "text/markdown");
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=test_churn_report.md");
-            headers.add(HttpHeaders.CONTENT_TYPE, "text/markdown");
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(reportBytes);
+            return ResponseEntity.ok().headers(headers).body(bytes);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(("Error downloading the report: " + e.getMessage()).getBytes());
         }
     }
