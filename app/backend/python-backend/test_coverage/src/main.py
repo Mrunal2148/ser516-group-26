@@ -6,6 +6,11 @@ import tempfile
 import subprocess
 import git
 import shutil
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +23,13 @@ def test_coverage():
 
     temp_dir = tempfile.mkdtemp()
     try:
-        git.Repo.clone_from(repo_url, temp_dir)
+        # Securely inject the token into the HTTPS URL
+        if "https://github.com" in repo_url and GITHUB_TOKEN:
+            tokenized_url = repo_url.replace("https://", f"https://{GITHUB_TOKEN}@")
+        else:
+            tokenized_url = repo_url
+
+        git.Repo.clone_from(tokenized_url, temp_dir)
 
         # Locate pom.xml
         pom_dir = None

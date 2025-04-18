@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import FogIndexCalculator from "../components/FogIndexCalculator";
 import DefectsRemoved from "../pages/DefectsRemoved";
@@ -12,6 +12,22 @@ import "../components/css/MultiMetrics.css";
 const MultiMetrics = () => {
   const location = useLocation();
   const { selectedMetrics, githubUrl, owner, repo } = location.state || {};
+  const [coverageReady, setCoverageReady] = useState(false);
+
+  useEffect(() => {
+    if (selectedMetrics?.includes("test-coverage") && githubUrl) {
+      fetch(`http://localhost:8004/metrics/test-coverage?repo_url=${githubUrl}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.message && data.download_path) {
+            setCoverageReady(true);
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching test coverage:", err);
+        });
+    }
+  }, [selectedMetrics, githubUrl]);
 
   return (
     <div className="multi-metrics-container">
@@ -55,6 +71,21 @@ const MultiMetrics = () => {
             <section className="metric-section">
               <h3>TEST COVERAGE</h3>
               <TestCoverage githubUrl={githubUrl} />
+
+              {coverageReady && (
+                <button
+                  className="download-button"
+                  onClick={() => {
+                    const link = document.createElement("a");
+                    link.href = "http://localhost:8004/metrics/test-coverage-report/download";
+                    link.download = "test_coverage_report.pdf";
+                    link.click();
+                  }}
+                  style={{ marginTop: "10px" }}
+                >
+                  Download Test Coverage Report (PDF)
+                </button>
+              )}
             </section>
           )}
           
