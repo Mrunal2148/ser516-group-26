@@ -3,8 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Period-3
-      - dev
+      - Period-4
+      - Dev-Group-2
     tags:
       - '*'  
   pull_request:
