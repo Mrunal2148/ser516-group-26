@@ -33,7 +33,7 @@ async def health_check():
 
 @app.get("/metrics/defects-triaged")
 async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
-    url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "FastAPI-Metrics-App",
@@ -41,11 +41,26 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
     }
 
     try:
-        response = requests.get(url, headers=headers, params={"state": "all", "per_page": 100})
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail="GitHub API error")
+        all_issues = []
+        page = 1
 
-        issues = response.json()
+        # Pagination loop
+        while True:
+            response = requests.get(
+                base_url,
+                headers=headers,
+                params={"state": "all", "per_page": 100, "page": page}
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail="GitHub API error")
+
+            page_issues = response.json()
+            if not page_issues:
+                break
+
+            all_issues.extend(page_issues)
+            page += 1
 
         total_defects = 0
         triaged_defects = 0
@@ -58,23 +73,18 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             "minor": 0
         }
 
-        for issue in issues:
+        for issue in all_issues:
             # Ignore pull requests
             if "pull_request" in issue:
                 continue
 
             labels = [label["name"].lower() for label in issue.get("labels", [])]
 
-            # Check if it's a defect
-            is_defect = any(label in {"bug", "defect", "type: bug", "type: defect"} for label in labels)
-            if not is_defect:
-                continue
-
+            # Default behavior: treat all issues as defects
             total_defects += 1
 
-            # Check triaged status
-            is_triaged = any(label in {"triaged", "severity: high", "severity: low", "severity: medium"} for label in labels)
-            if is_triaged:
+            # Triaged detection
+            if any(label in {"triaged", "severity: high", "severity: low", "severity: medium"} for label in labels):
                 triaged_defects += 1
 
             # Severity classification
@@ -85,7 +95,7 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             elif "severity: low" in labels or "minor" in labels:
                 severity_counts["minor"] += 1
 
-            # Status
+            # State tracking
             if issue["state"] == "open":
                 open_defects += 1
             elif issue["state"] == "closed":
