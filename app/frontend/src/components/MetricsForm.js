@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import DirectoryTree from "./DirectoryTree";
 import "../components/css/MetricsForm.css";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import FanInFanOutChart from "./FanInFanOutChart";
+
 
 const token = process.env.REACT_APP_GITHUB_TOKEN;
 
@@ -12,6 +15,7 @@ const MetricsForm = ({ githubUrl }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState(null);
+  const [allSelected, setAllSelected] = useState(false);
 
   // Get the repository name for display purposes.
   const repoName = githubUrl?.replace("https://github.com/", "");
@@ -121,6 +125,21 @@ const MetricsForm = ({ githubUrl }) => {
           </a>
         </p>
       )}
+      
+      <button
+          type="button"
+          onClick={() => {
+            if (allSelected) {
+              setSelectedFiles([]);
+            } else {
+              setSelectedFiles(availableFiles.map((f) => f.path));
+            }
+            setAllSelected(!allSelected);
+          }}
+            className="select-all-button"
+          >
+            {allSelected ? "Deselect All" : "Select All"}
+      </button>
 
       {error && <p className="text-red-600">{error}</p>}
       {loading && <p>Loading GitHub ZIP...</p>}
@@ -156,17 +175,18 @@ const MetricsForm = ({ githubUrl }) => {
           </button>
         </form>
       )}
-
       {results && (
-        <div className="results">
-          {Object.entries(results).map(([method, data]) => (
-            <div key={method}>
-              <strong>{method}</strong>
-              <p>Fan-in: {data.total_fan_in ?? data.fan_in}</p>
-              <p>Fan-out: {data.total_fan_out ?? data.fan_out}</p>
-            </div>
-          ))}
+        <>
+          <div className="results">
+          <FanInFanOutChart
+            data={Object.entries(results).map(([method, data]) => ({
+              function: method,
+              fanIn: data.total_fan_in ?? data.fan_in,
+              fanOut: data.total_fan_out ?? data.fan_out,
+            }))}
+          />
         </div>
+        </>
       )}
     </div>
   );
