@@ -162,15 +162,6 @@ const MetricsForm = ({ githubUrl }) => {
       {results && (
         <>
           <div className="results">
-            {Object.entries(results).map(([method, data]) => (
-              <div key={method}>
-                <strong>{method}</strong>
-                <p>Fan-in: {data.total_fan_in ?? data.fan_in}</p>
-                <p>Fan-out: {data.total_fan_out ?? data.fan_out}</p>
-              </div>
-            ))}
-          </div>
-
           <FanInFanOutChart
             data={Object.entries(results).map(([method, data]) => ({
               function: method,
@@ -178,6 +169,7 @@ const MetricsForm = ({ githubUrl }) => {
               fanOut: data.total_fan_out ?? data.fan_out,
             }))}
           />
+        </div>
         </>
       )}
     </div>
