@@ -15,6 +15,7 @@ const MetricsForm = ({ githubUrl }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState(null);
+  const [allSelected, setAllSelected] = useState(false);
 
   // Get the repository name for display purposes.
   const repoName = githubUrl?.replace("https://github.com/", "");
@@ -124,6 +125,21 @@ const MetricsForm = ({ githubUrl }) => {
           </a>
         </p>
       )}
+      
+      <button
+          type="button"
+          onClick={() => {
+            if (allSelected) {
+              setSelectedFiles([]);
+            } else {
+              setSelectedFiles(availableFiles.map((f) => f.path));
+            }
+            setAllSelected(!allSelected);
+          }}
+            className="select-all-button"
+          >
+            {allSelected ? "Deselect All" : "Select All"}
+      </button>
 
       {error && <p className="text-red-600">{error}</p>}
       {loading && <p>Loading GitHub ZIP...</p>}
