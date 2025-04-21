@@ -9,6 +9,7 @@ import json
 from typing import List, Dict, Any, Optional, Set
 import logging
 import traceback
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -39,7 +40,15 @@ class ScopeRequest(BaseModel):
 class MultiFunctionScopeRequest(BaseModel):
     selected_files: List[str]
     function_names: List[str]
+    
+class ClassScore(BaseModel):
+    class_name: str
+    score: int
 
+class MetricsResponse(BaseModel):
+    timestamp: str
+    data: List[ClassScore]
+    
 @app.on_event("startup")
 async def initialize_javaparser():
     try:
@@ -75,6 +84,30 @@ async def initialize_javaparser():
             def __init__(self):
                 self.StaticJavaParser = StaticJavaParser
                 self.VoidVisitorAdapter = VoidVisitorAdapter
+            
+            def extract_class_name(self, source_code: str) -> str:
+            
+                try:
+                    compilation_unit = self.StaticJavaParser.parse(source_code)
+                    
+                    package_name = ""
+                    if compilation_unit.getPackageDeclaration().isPresent():
+                        package_name = compilation_unit.getPackageDeclaration().get().getNameAsString()
+                    
+                    class_name = ""
+                    if compilation_unit.getPrimaryType().isPresent():
+                        class_name = compilation_unit.getPrimaryType().get().getNameAsString()
+                    else:
+                        types = compilation_unit.getTypes()
+                        if types.size() > 0:
+                            class_name = types.get(0).getNameAsString()
+                    
+                    if package_name and class_name:
+                        return f"{package_name}.{class_name}"
+                    return class_name
+                except Exception as e:
+                    logger.error(f"Error extracting class name: {str(e)}")
+                    return "unknown.Class"
             
             def analyze_fan_out(self, source_code: str, target_method: str) -> int:
                 """
