@@ -49,7 +49,9 @@ const RunMetrics = () => {
           navigate("/testChurn", { state: { owner, repo } });
           break;
         case "defects-triaged":
-          navigate("/defecttriaged", { state: { owner, repo } });
+          console.log({ selectedMetrics, githubUrl: selectedLink, owner, repo });
+          navigate("/defecttriaged", { state: {githubUrl: selectedLink, owner, repo } });
+          console.log({ selectedMetrics, githubUrl: selectedLink, owner, repo });
           break;
         case "fan-in-fan-out":
           navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });

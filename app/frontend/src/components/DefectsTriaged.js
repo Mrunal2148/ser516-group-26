@@ -1,115 +1,116 @@
 import React, { useEffect, useState } from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
   Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
 import PropTypes from "prop-types";
 import "../components/css/DefectTriage.css";
+import { useLocation } from "react-router-dom";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-const DefectsTriaged = ({ githubUrl }) => {
+const DefectsTriaged = () => {
+  const location = useLocation();
+  const { githubUrl, owner, repo } = location.state || {};
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Parse owner and repo from GitHub URL
-  const repoName = githubUrl?.replace("https://github.com/", "");
-  const parts = githubUrl?.split("/");
-  const owner = parts?.[3];
-  const repo = parts?.[4];
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!owner || !repo) {
-      setError("Invalid GitHub repository URL.");
-      setLoading(false);
+      console.warn("Invalid GitHub repo info");
       return;
     }
 
-    const fetchStats = async () => {
+    const fetchZipAndStats = async () => {
       try {
-        const url = `http://defects-triaged-service:8000/metrics/defects-triaged?owner=${owner}&repo=${repo}`;
-        const response = await fetch(url);
-        if (!response.ok)
-          throw new Error(`Error fetching metrics: ${response.statusText}`);
-        const data = await response.json();
-        setStats(data);
-      } catch (e) {
-        setError(e.message);
+        const zipRes = await fetch("http://localhost:8003/fetch-repo", {
+          method: "POST",
+          body: JSON.stringify({ owner, repo, path: "" }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!zipRes.ok) throw new Error("Failed to fetch repo zip");
+
+        const statsRes = await fetch(
+          `http://localhost:8005/metrics/defects-triaged?owner=${owner}&repo=${repo}`,
+          { method: "GET", headers: { "Content-Type": "application/json" } }
+        );
+
+        if (!statsRes.ok) throw new Error("Failed to fetch defect stats");
+
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      } catch (err) {
+        console.error("Error:", err.message);
+        setError("Failed to fetch defect metrics. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
-  }, [owner, repo]);
+    fetchZipAndStats();
+  }, [githubUrl, owner, repo]);
 
   if (loading) return <p>Loading Defects Triaged metrics...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   if (!stats) return <p>No data available.</p>;
 
-  // ✅ This is now safe because we're checking that stats is not null above
-  const triaged = stats.triaged_defects || 0;
-  const untriaged = (stats.total_defects ?? 0) - triaged;
+  const {
+    total_defects,
+    triaged_defects,
+    triaged_percentage,
+    open_defects,
+    closed_defects,
+    by_severity = {},
+  } = stats;
 
-  const pieData = [
-    { name: "Triaged", value: triaged },
-    { name: "Untriaged", value: untriaged },
-  ];
+  // Format data for chart
+  const severityData = Object.entries(by_severity).map(([severity, count]) => ({
+    severity,
+    total: count,
+    triaged: count, // Update this if you later separate triaged vs. total by severity
+  }));
 
   return (
     <div className="defects-triaged-container">
-      <h3>Defects Triaged Overview</h3>
-      {repoName && (
-        <p style={{ fontSize: "14px", marginTop: "4px", marginBottom: "10px" }}>
-          <strong>Repository:</strong>{" "}
-          <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-            {repoName}
-          </a>
-        </p>
-      )}
+      <h3>Defect Triage Overview</h3>
       <div className="stats-overview">
-        <p>
-          <strong>Triaged:</strong> {triaged}
-        </p>
-        <p>
-          <strong>Untriaged:</strong> {untriaged}
-        </p>
+        <p><strong>Total Defects:</strong> {total_defects}</p>
+        <p><strong>Triaged Defects:</strong> {triaged_defects}</p>
+        <p><strong>Triaged %:</strong> {triaged_percentage}%</p>
+        <p><strong>Open:</strong> {open_defects}</p>
+        <p><strong>Closed:</strong> {closed_defects}</p>
       </div>
-      <ResponsiveContainer width="100%" height={250}>
-        <PieChart>
-          <Pie
-            data={pieData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            label={({ name, percent }) =>
-              `${name}: ${Math.round(percent * 100)}%`
-            }
-          >
-            {pieData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value) => value} />
-          <Legend verticalAlign="bottom" />
-        </PieChart>
-      </ResponsiveContainer>
+
+      <h4>Defects by Severity</h4>
+      {severityData.length ? (
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={severityData} margin={{ top: 10, right: 30, bottom: 10, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="severity" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="total" stroke="#8884d8" name="Total Defects" />
+            <Line type="monotone" dataKey="triaged" stroke="#82ca9d" name="Triaged Defects" />
+          </LineChart>
+        </ResponsiveContainer>
+      ) : (
+        <p>No severity breakdown available.</p>
+      )}
     </div>
   );
 };
 
 DefectsTriaged.propTypes = {
-  githubUrl: PropTypes.string.isRequired,
+  githubUrl: PropTypes.string,
+  owner: PropTypes.string,
+  repo: PropTypes.string,
 };
 
 export default DefectsTriaged;

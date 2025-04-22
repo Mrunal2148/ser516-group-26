@@ -49,7 +49,7 @@ const MultiMetrics = () => {
           {selectedMetrics.includes("defects-triaged") && (
             <section className="metric-section">
               <h3>DEFECTS TRIAGED</h3>
-              <DefectsTriaged owner={owner} repo={repo} />
+              <DefectsTriaged githubUrl={githubUrl} owner={owner} repo={repo} />
             </section>
           )}
 

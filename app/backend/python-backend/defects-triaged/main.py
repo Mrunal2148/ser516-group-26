@@ -2,7 +2,11 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import logging
-import os 
+import os
+import zipfile
+import shutil
+import tempfile
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("defects-triaged-service")
@@ -33,7 +37,7 @@ async def health_check():
 
 @app.get("/metrics/defects-triaged")
 async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
-    base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    repo_api_url = f"https://api.github.com/repos/{owner}/{repo}"
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "FastAPI-Metrics-App",
@@ -41,10 +45,38 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
     }
 
     try:
+        # Get default branch
+        logger.info(f"Fetching default branch for {owner}/{repo}...")
+        repo_info = requests.get(repo_api_url, headers=headers)
+        if repo_info.status_code != 200:
+            raise HTTPException(status_code=repo_info.status_code, detail="Failed to fetch repo info")
+
+        default_branch = repo_info.json().get("default_branch", "main")
+        logger.info(f"Default branch is '{default_branch}'")
+
+        # Download ZIP
+        zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{default_branch}.zip"
+        logger.info(f"Downloading repository ZIP from {zip_url}...")
+        zip_res = requests.get(zip_url)
+
+        if zip_res.status_code != 200:
+            raise HTTPException(status_code=zip_res.status_code, detail="Failed to download repo ZIP")
+
+        temp_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(temp_dir, f"{repo}.zip")
+        with open(zip_path, "wb") as f:
+            f.write(zip_res.content)
+
+        logger.info(f"Extracting repository ZIP to {temp_dir}...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        extracted_repo_dir = os.path.join(temp_dir, f"{repo}-{default_branch}")
+
+        # Fetch issues
+        base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
         all_issues = []
         page = 1
-
-        # Pagination loop
         while True:
             response = requests.get(
                 base_url,
@@ -67,27 +99,18 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
         open_defects = 0
         closed_defects = 0
 
-        severity_counts = {
-            "critical": 0,
-            "major": 0,
-            "minor": 0
-        }
+        severity_counts = {"critical": 0, "major": 0, "minor": 0}
 
         for issue in all_issues:
-            # Ignore pull requests
             if "pull_request" in issue:
                 continue
 
             labels = [label["name"].lower() for label in issue.get("labels", [])]
-
-            # Default behavior: treat all issues as defects
             total_defects += 1
 
-            # Triaged detection
-            if any(label in {"triaged", "severity: high", "severity: low", "severity: medium"} for label in labels):
+            if any(label in TRIAGE_LABELS for label in labels):
                 triaged_defects += 1
 
-            # Severity classification
             if "severity: high" in labels or "critical" in labels:
                 severity_counts["critical"] += 1
             elif "severity: medium" in labels or "major" in labels:
@@ -95,13 +118,15 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             elif "severity: low" in labels or "minor" in labels:
                 severity_counts["minor"] += 1
 
-            # State tracking
             if issue["state"] == "open":
                 open_defects += 1
             elif issue["state"] == "closed":
                 closed_defects += 1
 
         triaged_percentage = int((triaged_defects / total_defects) * 100) if total_defects else 0
+
+        logger.info(f"Cleaning up extracted files from {temp_dir}...")
+        shutil.rmtree(temp_dir)
 
         return {
             "total_defects": total_defects,
