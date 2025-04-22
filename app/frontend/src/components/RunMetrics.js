@@ -48,9 +48,12 @@ const RunMetrics = () => {
         case "test-churn":
           navigate("/testChurn", { state: { owner, repo } });
           break;
-          case "fan-in-fan-out":
-            navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
-            break;
+        case "defects-triaged":
+          navigate("/defecttriaged", { state: { owner, repo } });
+          break;
+        case "fan-in-fan-out":
+          navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
+          break;
         default:
           alert("Invalid metric");
           break;
@@ -109,6 +112,15 @@ const RunMetrics = () => {
             onChange={() => handleMetricChange("test-churn")}
           />
           <label htmlFor="test-churn">Test Churn</label>
+        </div>
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="defects-triaged"
+            checked={selectedMetrics.includes("defects-triaged")}
+            onChange={() => handleMetricChange("defects-triaged")}
+          />
+          <label htmlFor="defects-triaged">Defects Triaged</label>
         </div>
         <div className="checkbox">
           <input

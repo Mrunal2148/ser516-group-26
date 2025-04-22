@@ -6,6 +6,7 @@ import CodeComment from "../components/CodeComment";
 import TestChurnDisplay from "../components/TestChurnDisplay";
 import MetricsForm from "../components/MetricsForm";
 import "../components/css/MultiMetrics.css";
+import DefectsTriaged from "../components/DefectsTriaged"
 
 const MultiMetrics = () => {
   const location = useLocation();
@@ -42,6 +43,13 @@ const MultiMetrics = () => {
             <section className="metric-section">
               <h3>TEST CHURN</h3>
               <TestChurnDisplay owner={owner} repo={repo} />
+            </section>
+          )}
+
+          {selectedMetrics.includes("defects-triaged") && (
+            <section className="metric-section">
+              <h3>DEFECTS TRIAGED</h3>
+              <DefectsTriaged owner={owner} repo={repo} />
             </section>
           )}
 
