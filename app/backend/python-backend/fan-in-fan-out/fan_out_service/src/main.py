@@ -40,7 +40,8 @@ class ScopeRequest(BaseModel):
 class MultiFunctionScopeRequest(BaseModel):
     selected_files: List[str]
     function_names: List[str]
-    
+
+#classes for new resposnse   
 class ClassScore(BaseModel):
     class_name: str
     score: int
@@ -226,17 +227,7 @@ def extract_class_name_regex(source_code: str) -> str:
     return class_name
 
 def fan_out_metric(source_code: str, target: str, analyzer=None) -> (int, str):
-    """
-    Calculate fan-out metric using JavaParser (with regex fallback)
-    
-    Args:
-        source_code: Java source code
-        target: Target method name
-        analyzer: Optional JavaParser analyzer instance
-        
-    Returns:
-        Tuple of (fan-out metric count, class name)
-    """
+   
     try:
         class_name = "unknown.Class"
         if analyzer:
@@ -352,7 +343,6 @@ async def calculate_scoped_fan_out(
                             score=file_fan_out
                         ))
                 else:
-                    # Skip files that don't exist or aren't Java files
                     logger.warning(f"File not found or not a Java file: {file_path}")
             
             return MetricsResponse(
@@ -384,7 +374,6 @@ async def calculate_multi_fan_out(
         content = await file.read()
         source_code = content.decode('utf-8')
         
-        # Extract class name once
         class_name = "unknown.Class"
         if analyzer:
             class_name = analyzer.extract_class_name(source_code)
@@ -446,21 +435,18 @@ async def calculate_scoped_multi_fan_out(
             
             data = []
             
-            # Process each file-function combination
             for file_path in scope_request.selected_files:
                 full_path = os.path.join(temp_dir, file_path)
                 
                 if os.path.exists(full_path) and file_path.endswith('.java'):
                     with open(full_path, 'r', encoding='utf-8') as f:
                         content = f.read()
-                        # Extract class name once per file
                         class_name = "unknown.Class"
                         if analyzer:
                             class_name = analyzer.extract_class_name(content)
                         else:
                             class_name = extract_class_name_regex(content)
                         
-                        # Process each function for this file
                         for function_name in scope_request.function_names:
                             file_fan_out, _ = fan_out_metric(content, function_name, analyzer)
                             data.append(ClassScore(
