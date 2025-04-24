@@ -1,8 +1,0 @@
-Flask==2.3.2
-flask-cors==4.0.0
-beautifulsoup4==4.12.3
-gitpython==3.1.40
-pytest==7.4.0
-werkzeug==2.3.4
-python-dotenv==1.0.0
-weasyprint==59.0

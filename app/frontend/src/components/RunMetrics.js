@@ -36,9 +36,6 @@ const RunMetrics = () => {
     } else {
       //  If only one metric is selected, navigate to its specific page
       switch (selectedMetrics[0]) {
-        case "test-coverage":
-          navigate("/testcoverage", { state: { githubUrl: selectedLink } });
-          break;
         case "fog-index":
           navigate("/fogindex", { state: { githubUrl: selectedLink } });
           break;
@@ -51,40 +48,15 @@ const RunMetrics = () => {
         case "test-churn":
           navigate("/testChurn", { state: { owner, repo } });
           break;
-        case "fan-in-fan-out":
-          navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
-          break;
-        
+          case "fan-in-fan-out":
+            navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
+            break;
         default:
           alert("Invalid metric");
           break;
       }
     }
   };
-
-  // const handleTestCoverage = async () => {
-  //   try {
-  //     const response = await fetch(`http://localhost:8004/metrics/test-coverage?repo_url=${selectedLink}`);
-  //     const data = await response.json();
-  
-  //     if (data.message) {
-  //       alert(data.message); // optional toast
-  //     }
-  
-  //     if (data.download_path) {
-  //       const link = document.createElement('a');
-  //       link.href = `http://localhost:8004${data.download_path}`;
-  //       link.download = "test_coverage_report.html";
-  //       document.body.appendChild(link);
-  //       link.click();
-  //       document.body.removeChild(link);
-  //     }
-  //   } catch (err) {
-  //     console.error("Failed to fetch test coverage:", err);
-  //     alert("Something went wrong. Please try again.");
-  //   }
-  // };
-  
 
   return (
     <div className="run-metrics-container">
@@ -129,7 +101,6 @@ const RunMetrics = () => {
           />
           <label htmlFor="defects-removed">Defects Removed</label>
         </div>
-
         <div className="checkbox">
           <input
             type="checkbox"
@@ -139,17 +110,6 @@ const RunMetrics = () => {
           />
           <label htmlFor="test-churn">Test Churn</label>
         </div>
-
-        <div className="checkbox">
-          <input
-            type="checkbox"
-            id="test-coverage"
-            checked={selectedMetrics.includes("test-coverage")}
-            onChange={() => handleMetricChange("test-coverage")}
-          />
-          <label htmlFor="test-coverage">Test Coverage</label>
-        </div>
-
         <div className="checkbox">
           <input
             type="checkbox"

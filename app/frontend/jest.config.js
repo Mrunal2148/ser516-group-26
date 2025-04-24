@@ -3,7 +3,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
   testPathIgnorePatterns: ['/node_modules/', '/build/'],
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(test|spec).[jt]s?(x)'],
+  testMatch: ['**/?(*.)+(test|spec).[jt]s?(x)'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
