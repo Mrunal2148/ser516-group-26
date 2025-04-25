@@ -9,6 +9,7 @@ import json
 from typing import List, Dict, Any, Optional
 import logging
 import traceback
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -155,6 +156,20 @@ async def initialize_javaparser():
     except Exception as e:
         logger.error(f"Error initializing JavaParser: {str(e)}")
         logger.error(traceback.format_exc())
+
+def extract_class_name(file_path: str) -> str:
+    return (
+        file_path.replace("/", ".")
+                 .replace("\\", ".")
+                 .replace(".java", "")
+                 .strip(".")
+    )
+
+def format_final_response(entries: List[dict]) -> dict:
+    return {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "data": entries
+    }
 
 def get_analyzer():
     """Dependency injection for the analyzer"""
@@ -313,18 +328,22 @@ async def calculate_multi_fan_in(
         function_names_list = json.loads(function_names)
         if not isinstance(function_names_list, list):
             raise HTTPException(status_code=400, detail="function_names must be a JSON array")
-            
+        
         content = await file.read()
         source_code = content.decode('utf-8')
-        
-        results = {}
+        class_name = extract_class_name(file.filename)
+
+        results = []
         for function_name in function_names_list:
             fan_in = fan_in_metric(source_code, function_name, analyzer)
-            results[function_name] = fan_in
-        
-        return {
-            "results": results
-        }
+            results.append({
+                "class_name": class_name,
+                "method_name": function_name,
+                "fan_in_score": fan_in
+            })
+
+        return format_final_response(results)
+
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON for function_names")
     except Exception as e:
@@ -365,12 +384,9 @@ async def calculate_scoped_multi_fan_in(
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_dir)
             
-            all_results = {}
-            
+            final_entries = []
+
             for function_name in scope_request.function_names:
-                results = {}
-                total_fan_in = 0
-                
                 for file_path in scope_request.selected_files:
                     full_path = os.path.join(temp_dir, file_path)
                     
@@ -378,20 +394,18 @@ async def calculate_scoped_multi_fan_in(
                         with open(full_path, 'r', encoding='utf-8') as f:
                             content = f.read()
                             file_fan_in = fan_in_metric(content, function_name, analyzer)
-                            results[file_path] = file_fan_in
-                            total_fan_in += file_fan_in
+
+                            final_entries.append({
+                                "class_name": extract_class_name(file_path),
+                                "method_name": function_name,
+                                "fan_in_score": file_fan_in
+                            })
                     else:
-                        results[file_path] = "File not found or not a Java file"
-                
-                all_results[function_name] = {
-                    "total_fan_in": total_fan_in,
-                    "per_file_results": results
-                }
-            
-            return {
-                "results": all_results
-            }
-            
+                        logger.warning(f"Skipping invalid file: {file_path}")
+                        continue
+
+            return format_final_response(final_entries)
+        
         except zipfile.BadZipFile:
             raise HTTPException(status_code=400, detail="Invalid ZIP file")
         except Exception as e:
@@ -423,13 +437,24 @@ async def calculate_fan_in(
     try:
         content = await file.read()
         source_code = content.decode('utf-8')
-        
+
         fan_in = fan_in_metric(source_code, function_name, analyzer)
-        
-        return {
-            "function_name": function_name,
-            "fan_in": fan_in
+
+        # Extract class name from uploaded file
+        class_name = extract_class_name(file.filename)
+
+        response = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "data": [
+                {
+                    "class_name": class_name,
+                    "method_name": function_name,
+                    "fan_in_score": fan_in
+                }
+            ]
         }
+        return response
+
     except Exception as e:
         logger.error(f"Error in calculate_fan_in: {str(e)}")
         logger.error(traceback.format_exc())
