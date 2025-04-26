@@ -50,11 +50,11 @@ def get_metrics_grp_6():
         repo_url = data["repo_url"]
         head_sha, repo_dir = clone_repo(repo_url)
 
-        # payload = {config.payload_key: repo_url}
-        # results = {}
-        # code_comment_res = requests.post("http://code-comment:5006/api/github/code-comment-coverage", json=payload)
-        # results["code-comment-coverage"] = code_comment_res
-        # return jsonify({"results": results}), 200
+        payload = {config.payload_key: repo_url}
+        results = {}
+        code_comment_res = requests.post("http://127.0.0.1:5006/api/github/code-comment-coverage", json=payload)
+        results["code-comment-coverage"] = code_comment_res
+        return jsonify({"results": results}), 200
         
     except Exception as e:
         return jsonify({"message": f"Error occurred while cloning repository or fetching metrics: {e}"}), 500
