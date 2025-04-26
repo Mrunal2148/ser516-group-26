@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 
 # Add these imports
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../")))
-from utilities.fetch_repo import fetch_repo
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+from utilities.fetch_repo import fetch_repo, get_owner_repo
 from utilities.response_wrapper import wrap_with_timestamp
 import git
 
@@ -119,23 +119,26 @@ def analyze_repository():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/github/code-comment-coverage", methods=["GET"])
+@app.route("/api/github/code-comment-coverage", methods=["POST"])
 def analyze_repository_query():
     """Analyze repository for comment coverage via GET query parameters."""
-    owner = request.args.get("owner")
-    repo = request.args.get("repo")
+    # owner = request.args.get("owner")
+    # repo = request.args.get("repo")
 
-    if not owner or not repo:
-        return jsonify({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": [],
-            "message": "Both 'owner' and 'repo' query parameters are required"
-        }), 400
+    # if not owner or not repo:
+    #     return jsonify({
+    #         "timestamp": datetime.now(timezone.utc).isoformat(),
+    #         "data": [],
+    #         "message": "Both 'owner' and 'repo' query parameters are required"
+    #     }), 400
 
-    repo_url = f"https://github.com/{owner}/{repo}"
+    # repo_url = f"https://github.com/{owner}/{repo}"
+    data = request.get_json()
 
     try:
+        repo_url = data["repo_url"]
         fetch_res = fetch_repo(repo_url)
+        owner, repo = get_owner_repo(repo_url)
         if isinstance(fetch_res, dict) and "error" in fetch_res:
             return jsonify({"error": fetch_res["error"]}), 200
 
@@ -148,9 +151,6 @@ def analyze_repository_query():
         shutil.rmtree(repo_path)
 
         response = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": [
-                {
                     "repo_url": repo_url,
                     "owner": owner,
                     "repo": repo,
@@ -158,10 +158,8 @@ def analyze_repository_query():
                     "comment_lines": comment_lines,
                     "coverage": coverage
                 }
-            ]
-        }
 
-        return jsonify(response)
+        return jsonify(wrap_with_timestamp(response)), 200
     except Exception as e:
         return jsonify({
             "timestamp": datetime.now(timezone.utc).isoformat(),
