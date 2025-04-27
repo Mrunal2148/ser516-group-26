@@ -9,11 +9,11 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.myproject.models.FogIndexResponse;
 
 public class FogIndexControllerTest {
 
@@ -49,16 +49,13 @@ public class FogIndexControllerTest {
         FogIndexController controller = new FogIndexController();
         // URL that doesn’t point to a Git repo
         String dummyUrl = "https://example.com/archive/main.zip";
-
-        ResponseEntity<Map<String, Object>> response = controller.calculateFogIndex(dummyUrl);
-
-        // Expect a 500 error because the URL is invalid
-        assertNotNull(response);
-        assertEquals(500, response.getStatusCodeValue(), 
-            "Expected an HTTP 500 error due to invalid URL");
-        assertNotNull(response.getBody(), "Response body should not be null");
-        assertTrue(response.getBody().containsKey("error"), 
-            "Response body should contain an error key");
+    
+        FogIndexResponse response = controller.calculateFogIndex(dummyUrl);
+    
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getData(), "Response data should not be null");
+        assertTrue(response.getData().get(0).containsKey("error"), 
+            "Response data should contain an error key");
     }
 
     @Test
@@ -82,22 +79,18 @@ public class FogIndexControllerTest {
     void testCalculateFogIndex_SuccessWithRealRepo() {
         FogIndexController controller = new FogIndexController();
         String realRepoUrl = "https://github.com/Mrunal2148/ser516-group-java-2/archive/refs/heads/Period-2.zip";
-
-        ResponseEntity<Map<String, Object>> response = controller.calculateFogIndex(realRepoUrl);
-
-        assertNotNull(response, "Controller returned a null ResponseEntity");
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> body = response.getBody();
-            assertNotNull(body, "Response body should not be null");
-            assertTrue(body.containsKey("fogIndex"), "Body should contain a ‘fogIndex’ key");
-            assertTrue(body.containsKey("message"), "Body should contain a ‘message’ key");
-            assertEquals("Calculation successful", body.get("message"),
-                    "Expected a ‘Calculation successful’ message in the response");
-        } else {
-            fail("Expected a 200 OK, but got " + response.getStatusCode()
-                 + ". Details: " + response.getBody());
-        }
+    
+        FogIndexResponse response = controller.calculateFogIndex(realRepoUrl);
+    
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getData(), "Response data should not be null");
+    
+        Map<String, Object> body = response.getData().get(0);
+        assertNotNull(body, "Response body should not be null");
+        assertTrue(body.containsKey("fogIndex"), "Body should contain a ‘fogIndex’ key");
+        assertTrue(body.containsKey("message"), "Body should contain a ‘message’ key");
+        assertEquals("Calculation successful", body.get("message"),
+                "Expected a ‘Calculation successful’ message in the response");
     }
 
     @Test
@@ -118,12 +111,12 @@ public class FogIndexControllerTest {
     void testCalculateFogIndex_withNonExistentBranch_returnsError() {
         FogIndexController controller = new FogIndexController();
         String bogusBranchUrl = "https://github.com/Mrunal2148/ser516-group-java-2/archive/refs/heads/bogus-branch.zip";
-
-        ResponseEntity<Map<String, Object>> response = controller.calculateFogIndex(bogusBranchUrl);
-
-        assertNotNull(response);
-        assertEquals(500, response.getStatusCodeValue(), "Expected 500 for non-existent branch");
-        assertTrue(response.getBody().containsKey("error"));
+    
+        FogIndexResponse response = controller.calculateFogIndex(bogusBranchUrl);
+    
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getData(), "Response data should not be null");
+        assertTrue(response.getData().get(0).containsKey("error"), "Response data should contain an error key");
     }
 
     @Test
