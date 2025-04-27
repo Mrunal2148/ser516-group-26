@@ -45,7 +45,6 @@ jobs:
           docker tag app-fan-out-service mkapure/app-fan-out-service:latest
           docker tag app-github-service mkapure/app-github-service:latest
 
-          docker push mkapure/app-frontend:latest
           docker push mkapure/app-java-backend:latest
           docker push mkapure/app-python-backend:latest
           docker push mkapure/app-code-comment-coverage-backend:latest
