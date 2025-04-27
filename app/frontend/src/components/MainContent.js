@@ -11,7 +11,7 @@ import MultiMetrics from "../pages/MultiMetrics";
 import TestChurnDisplay from "./TestChurnDisplay";
 import FanInFanOut from "../pages/FanInFanOut";
 import DefectsTriaged from "../components/DefectsTriaged";
-
+import TestCoverage from "./TestCoverage";
 
 const MainContent = () => {
   return (
@@ -28,6 +28,7 @@ const MainContent = () => {
         <Route path="/testChurn" element={<TestChurnDisplay/>} />
         <Route path="/fanmetrics" element={<FanInFanOut />} />
         <Route path="/defecttriaged" element={<DefectsTriaged />} />
+        <Route path="/testcoverage" element={<TestCoverage />} />
       </Routes>
     </div>
   );

@@ -1,4 +1,3 @@
-version: '3'
 services:
   frontend:
     build:
@@ -17,7 +16,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8080"
       
     env_file:
       - .env
@@ -36,14 +35,16 @@ services:
     networks:
       - app-network
   
-  code-comment-coverage-backend:
+  code-comment-coverage:
     build:
-      context: ./backend/python-backend/code-comment
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: ./python-backend/code-comment/Dockerfile
     ports:
       - "5006:5006"  
     networks:
       - app-network
+    volumes:
+      - shared-repos:/shared/repos
       
   fan-in-fan-out-api:
     build:
@@ -84,6 +85,30 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+  
+  test-coverage-service:
+    build:
+      context: ./backend/python-backend/test_coverage
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+    volumes:
+      - ${HOME}/Downloads:/downloads
+  
+  clone_repo:
+      build:
+        context: ../
+        dockerfile: DockerfileMiddleware
+      ports:
+        - "6000:6000"
+      volumes:
+        - shared-repos:/shared/repos
+      networks:
+        - app-network
 
   defects-triaged:
     build:
@@ -99,3 +124,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  shared-repos:

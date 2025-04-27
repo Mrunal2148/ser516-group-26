@@ -1,12 +1,13 @@
-FROM python:3.10
+FROM python:3.13-slim
 
 WORKDIR /app
+RUN apt-get update && apt-get install -y git
 
-COPY requirements.txt .
+COPY python-backend/code-comment/requirements.txt .
+COPY python-backend/code-comment/code_comment_app.py .
+COPY ../utilities ./utilities
 
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY code_comment_app.py .
 
 EXPOSE 5006
 
