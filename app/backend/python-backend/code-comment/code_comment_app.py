@@ -10,10 +10,9 @@ from datetime import datetime, timezone
 
 # Add these imports
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from utilities.fetch_repo import fetch_repo, get_owner_repo
 from utilities.response_wrapper import wrap_with_timestamp
-import git
 
 app = Flask(__name__)
 CORS(app)
@@ -141,15 +140,10 @@ def analyze_repository_query():
         owner, repo = get_owner_repo(repo_url)
         if isinstance(fetch_res, dict) and "error" in fetch_res:
             return jsonify({"error": fetch_res["error"]}), 200
-
         head_sha, repo_path = fetch_res
-
         code_files = get_code_files(repo_path)
         total_lines, comment_lines, coverage = calculate_comment_coverage(code_files)
-
         save_to_json(repo_url, total_lines, comment_lines, coverage)
-        shutil.rmtree(repo_path)
-
         response = {
                     "repo_url": repo_url,
                     "owner": owner,
@@ -158,7 +152,6 @@ def analyze_repository_query():
                     "comment_lines": comment_lines,
                     "coverage": coverage
                 }
-
         return jsonify(wrap_with_timestamp(response)), 200
     except Exception as e:
         return jsonify({

@@ -52,8 +52,8 @@ def get_metrics_grp_6():
 
         payload = {config.payload_key: repo_url}
         results = {}
-        code_comment_res = requests.post("http://127.0.0.1:5006/api/github/code-comment-coverage", json=payload)
-        results["code-comment-coverage"] = code_comment_res
+        code_comment_res = requests.post("http://code-comment-coverage:5006/api/github/code-comment-coverage", json=payload)
+        results["code-comment-coverage"] = code_comment_res.json()
         return jsonify({"results": results}), 200
         
     except Exception as e:
