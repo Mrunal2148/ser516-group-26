@@ -3,13 +3,16 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Period-3
-      - dev
+      - "*"
   pull_request:
     branches:
-      - Period-3
-      - dev
+      - "*"
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release Version (e.g., v1.0.0)'
+        required: true
+        type: string
 
 jobs:
   build:
