@@ -38,10 +38,6 @@ SEVERITY_LABELS = {
     "severity: critical", "severity: major", "severity: minor", "severity: trivial"
 }
 
-@app.get("/")
-async def root():
-    return {"message": "Defects Triaged Service"}
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
@@ -57,6 +53,8 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
 
     try:
         logger.info(f"Fetching default branch for {owner}/{repo}...")
+
+        # Fetch repo info
         repo_info = requests.get(repo_api_url, headers=headers)
         if repo_info.status_code != 200:
             raise HTTPException(status_code=repo_info.status_code, detail="Failed to fetch repo info")
@@ -85,31 +83,15 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             all_issues.extend(page_issues)
             page += 1
 
-        all_issues = []
-        page = 1
-        while True:
-            response = requests.get(
-                f"https://api.github.com/repos/{owner}/{repo}/issues",
-                headers=headers,
-                params={"state": "all", "per_page": 100, "page": page}
-            )
-            if response.status_code != 200:
-                raise HTTPException(status_code=response.status_code, detail="GitHub API error")
-            
-            page_issues = response.json()
-            if not page_issues:
-                break
-            
-            all_issues.extend(page_issues)
-            page += 1
-
-        # New Part
+        # Now, process the defects over the last 90 days
         now = datetime.utcnow()
-        past_date = now - timedelta(days=90)  # here we are manageing the dates
+        past_date = now - timedelta(days=90)  # Manage the dates to consider only the last 90 days
 
+        # Initialize the counters for each day
         open_counts = defaultdict(int)
         closed_counts = defaultdict(int)
         triaged_counts = defaultdict(int)
+        matched_label_counts = defaultdict(int)
 
         severity_counts = {
             "critical": defaultdict(int),
@@ -117,8 +99,8 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             "medium": defaultdict(int),
             "low": defaultdict(int)
         }
-        matched_label_counts = defaultdict(int)  # Key = known label, Value = number of issues with that label
 
+        # Process each issue and accumulate counts
         for issue in all_issues:
             if "pull_request" in issue:
                 continue  # Skip PRs
@@ -131,6 +113,12 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             labels = [label["name"].lower() for label in issue.get("labels", [])]
             is_triaged = bool(labels)
 
+            # Update matched_label_counts for triaged labels
+            for label in labels:
+                if label in TRIAGE_LABELS:
+                    matched_label_counts[label] += 1
+
+            # Track issues over the last 90 days
             if created_at >= past_date:
                 day = created_at.date().isoformat()
                 if issue["state"] == "open":
@@ -142,10 +130,7 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
                 day = closed_at.date().isoformat()
                 closed_counts[day] += 1
 
-            for label in labels:
-                if label in TRIAGE_LABELS:
-                    matched_label_counts[label] += 1
-
+            # Track severity counts based on labels
             for label in labels:
                 if label in SEVERITY_LABELS:
                     if "critical" in label or "blocker" in label:
@@ -157,7 +142,7 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
                     elif "low" in label:
                         severity_counts["low"][day] += 1
 
-        # Calculate the summary values
+        # Calculate summary values
         total_defects = sum(open_counts.values()) + sum(closed_counts.values())
         triaged_defects = sum(triaged_counts.values())
 
@@ -183,6 +168,19 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
         # Now calculate triaged percentage
         triaged_percentage = int((triaged_defects / total_defects) * 100) if total_defects else 0
 
+        # Format the results for the frontend with the summary metrics
+        data_by_day = []
+        for day in sorted(open_counts.keys()):
+            data_by_day.append({
+                "date": day,
+                "open_defects": open_counts.get(day, 0),
+                "closed_defects": closed_counts.get(day, 0),
+                "triaged_defects": triaged_counts.get(day, 0),
+                "critical_severity": severity_counts["critical"].get(day, 0),
+                "high_severity": severity_counts["high"].get(day, 0),
+                "medium_severity": severity_counts["medium"].get(day, 0),
+                "low_severity": severity_counts["low"].get(day, 0)
+            })
 
         return {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -197,6 +195,7 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
                 {"class_name": "Medium Severity Defects", "score": severity_counts["medium"]},
                 {"class_name": "Low Severity Defects", "score": severity_counts["low"]},
             ],
+            "data_by_day": data_by_day,  # Time-series data for frontend
             "matched_label_distribution": dict(matched_label_counts)
         }
 
