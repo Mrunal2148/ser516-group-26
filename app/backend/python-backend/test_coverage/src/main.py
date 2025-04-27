@@ -8,6 +8,9 @@ import git
 import shutil
 import os
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
+from datetime import datetime
+
 load_dotenv()
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -49,34 +52,74 @@ def test_coverage():
             shutil.copy(default_pom, os.path.join(pom_dir, "pom.xml"))
 
         # Run Maven tests to generate JaCoCo report
-        subprocess.run(["mvn", "clean", "test"], cwd=pom_dir, check=True)
+        subprocess.run([
+            "mvn",
+            "clean",
+            "org.jacoco:jacoco-maven-plugin:0.8.10:prepare-agent",
+            "test",
+            "org.jacoco:jacoco-maven-plugin:0.8.10:report"
+        ], cwd=pom_dir, check=True)
 
-        report_path = os.path.join(pom_dir, "target", "site", "jacoco", "index.html")
-        if not os.path.exists(report_path):
-            # Try explicit report generation
-            subprocess.run([
-                "mvn",
-                "org.jacoco:jacoco-maven-plugin:0.8.10:prepare-agent",
-                "test",
-                "org.jacoco:jacoco-maven-plugin:0.8.10:report"
-            ], cwd=pom_dir, check=True)
-
-        if not os.path.exists(report_path):
+        report_dir = os.path.join(pom_dir, "target", "site", "jacoco")
+        index_path = os.path.join(report_dir, "index.html")
+        if not os.path.exists(index_path):
             return jsonify({"error": "JaCoCo report not found."}), 500
 
-        # Copy report to /tmp for frontend download
-        report_copy_dir = "/tmp/test_coverage_output"
-        os.makedirs(report_copy_dir, exist_ok=True)
-        dest_path = os.path.join(report_copy_dir, "test_coverage_report.html")
-        shutil.copytree(
-           os.path.dirname(report_path),  # the entire /jacoco/ folder
-            "/tmp/test_coverage_output",
-            dirs_exist_ok=True
-        )
+        # Copy report to static folder
+        output_dir = "/tmp/test_coverage_output"
+        os.makedirs(output_dir, exist_ok=True)
+        shutil.copytree(report_dir, output_dir, dirs_exist_ok=True)
+
+        # === Begin class-level parsing ===
+        data = []
+
+        with open(index_path, "r", encoding="utf-8") as f:
+            soup = BeautifulSoup(f, "html.parser")
+
+        coverage_table = soup.find("table", class_="coverage")
+        if not coverage_table:
+            return jsonify({"error": "Coverage table not found in index.html"}), 500
+
+        # For each package row in main index.html
+        for row in coverage_table.find("tbody").find_all("tr"):
+            cells = row.find_all("td")
+            if len(cells) > 0:
+                link = cells[0].find("a")
+                if link and "href" in link.attrs:
+                    subpage_path = link['href']
+                    subpage_file = os.path.join(report_dir, subpage_path)
+
+                    # Extract package name
+                    package_name = subpage_path.replace("/index.html", "").replace("/", ".")
+
+                    if os.path.exists(subpage_file):
+                        with open(subpage_file, "r", encoding="utf-8") as sf:
+                            sub_soup = BeautifulSoup(sf, "html.parser")
+
+                        sub_table = sub_soup.find("table", class_="coverage")
+                        if not sub_table:
+                            continue
+
+                        for sub_row in sub_table.find("tbody").find_all("tr"):
+                            sub_cells = sub_row.find_all("td")
+                            if len(sub_cells) >= 3:
+                                file_name = sub_cells[0].text.strip()
+                                class_name = file_name.replace(".java", "").replace(".kt", "")
+                                full_class_name = f"{package_name}.{class_name}"
+
+                                try:
+                                    score = int(sub_cells[2].text.strip().replace('%', ''))
+                                except:
+                                    score = 0
+
+                                data.append({
+                                    "class_name": full_class_name,
+                                    "score": score
+                                })
 
         return jsonify({
-            "message": "Report generated successfully",
-            "download_path": "/metrics/test-coverage-report"
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "data": data
         })
 
     except subprocess.CalledProcessError as e:
@@ -85,19 +128,6 @@ def test_coverage():
         return jsonify({"error": str(e)}), 500
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
-
-@app.route("/metrics/test-coverage-report", methods=["GET"])
-def serve_test_coverage_report():
-    return send_file("/tmp/test_coverage_output/index.html")
-
-@app.route("/metrics/jacoco-resources/<path:filename>")
-def serve_jacoco_resources(filename):
-    resource_dir = "/tmp/test_coverage_output/jacoco-resources"
-    full_path = safe_join(resource_dir, filename)
-    if os.path.exists(full_path):
-        return send_from_directory(resource_dir, filename)
-    else:
-        return "Resource not found", 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8004)
