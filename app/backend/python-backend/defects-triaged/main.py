@@ -6,7 +6,7 @@ import os
 import zipfile
 import shutil
 import tempfile
-import time
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("defects-triaged-service")
@@ -54,25 +54,6 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
         default_branch = repo_info.json().get("default_branch", "main")
         logger.info(f"Default branch is '{default_branch}'")
 
-        # Download ZIP
-        zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{default_branch}.zip"
-        logger.info(f"Downloading repository ZIP from {zip_url}...")
-        zip_res = requests.get(zip_url)
-
-        if zip_res.status_code != 200:
-            raise HTTPException(status_code=zip_res.status_code, detail="Failed to download repo ZIP")
-
-        temp_dir = tempfile.mkdtemp()
-        zip_path = os.path.join(temp_dir, f"{repo}.zip")
-        with open(zip_path, "wb") as f:
-            f.write(zip_res.content)
-
-        logger.info(f"Extracting repository ZIP to {temp_dir}...")
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-
-        extracted_repo_dir = os.path.join(temp_dir, f"{repo}-{default_branch}")
-
         # Fetch issues
         base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
         all_issues = []
@@ -108,33 +89,26 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
             labels = [label["name"].lower() for label in issue.get("labels", [])]
             total_defects += 1
 
-            if any(label in TRIAGE_LABELS for label in labels):
+            is_triaged = any(label in TRIAGE_LABELS for label in labels)
+            if is_triaged:
                 triaged_defects += 1
+                if issue["state"] == "open":
+                    open_defects += 1
+                elif issue["state"] == "closed":
+                    closed_defects += 1
 
-            if "severity: high" in labels or "critical" in labels:
-                severity_counts["critical"] += 1
-            elif "severity: medium" in labels or "major" in labels:
-                severity_counts["major"] += 1
-            elif "severity: low" in labels or "minor" in labels:
-                severity_counts["minor"] += 1
+            triaged_percentage = int((triaged_defects / total_defects) * 100) if total_defects else 0
 
-            if issue["state"] == "open":
-                open_defects += 1
-            elif issue["state"] == "closed":
-                closed_defects += 1
-
-        triaged_percentage = int((triaged_defects / total_defects) * 100) if total_defects else 0
-
-        logger.info(f"Cleaning up extracted files from {temp_dir}...")
-        shutil.rmtree(temp_dir)
 
         return {
-            "total_defects": total_defects,
-            "triaged_defects": triaged_defects,
-            "triaged_percentage": triaged_percentage,
-            "by_severity": severity_counts,
-            "open_defects": open_defects,
-            "closed_defects": closed_defects
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "data": [
+                {"class_name": "Total Defects", "score": total_defects},
+                {"class_name": "Triaged Defects", "score": triaged_defects},
+                {"class_name": "Open Triaged Defects", "score": open_defects},
+                {"class_name": "Closed Triaged Defects", "score": closed_defects},
+                {"class_name": "Defect Triaged Percentage", "score": triaged_percentage}
+            ]
         }
 
     except Exception as e:

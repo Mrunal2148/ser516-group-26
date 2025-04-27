@@ -13,6 +13,7 @@ import PropTypes from "prop-types";
 import "../components/css/DefectTriage.css";
 import { useLocation } from "react-router-dom";
 
+
 const DefectsTriaged = () => {
   const location = useLocation();
   const { githubUrl, owner, repo } = location.state || {};
