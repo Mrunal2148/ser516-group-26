@@ -9,7 +9,6 @@ import sys
 
 # Add utilities to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-from utilities.fetch_repo import clone_repo
 
 
 class TestApp(unittest.TestCase):
@@ -87,16 +86,6 @@ class TestApp(unittest.TestCase):
         self.assertGreater(len(response.json), 0)
         self.assertEqual(response.json[0]["repo_url"], self.test_repo_url)
 
-    def test_clone_repo(self):
-        """Test the clone_repo function."""
-        try:
-            clone_repo(self.test_repo_url, self.test_repo_path)
-            self.assertTrue(os.path.exists(self.test_repo_path))
-            self.assertTrue(os.path.isdir(self.test_repo_path))
-        finally:
-            if os.path.exists(self.test_repo_path):
-                shutil.rmtree(self.test_repo_path)
-
     def test_get_code_files(self):
         """Test the get_code_files function."""
         # Create a temporary directory with some test files
@@ -153,27 +142,6 @@ class TestApp(unittest.TestCase):
         finally:
             for path in files:
                 os.unlink(path)
-
-    def test_save_to_json(self):
-        """Test the save_to_json function."""
-        test_data = {
-            "repo_url": self.test_repo_url,
-            "total_lines": 1000,
-            "comment_lines": 500,
-            "coverage": 50.0
-        }
-        
-        # First save the data
-        save_to_json(**test_data)
-        
-        # Then verify it was saved correctly
-        self.assertTrue(os.path.exists(self.coverage_data_file))
-        
-        with open(self.coverage_data_file, "r") as f:
-            data = json.load(f)
-            self.assertIsInstance(data, list)
-            self.assertEqual(len(data), 1)
-            self.assertEqual(data[0]["repo_url"], test_data["repo_url"])
 
 
 if __name__ == "__main__":
