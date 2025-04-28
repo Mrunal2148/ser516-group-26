@@ -5,9 +5,12 @@ from flask import json
 from code_comment_app import app, save_to_json, clone_repo, get_code_files, process_file, calculate_comment_coverage
 
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-from utilities.fetch_repo import fetch_repo, get_owner_repo
-from utilities.response_wrapper import wrap_with_timestamp
+
+import unittest
+from utilities.fetch_repo import clone_repo
+
 
 class TestApp(unittest.TestCase):
 
