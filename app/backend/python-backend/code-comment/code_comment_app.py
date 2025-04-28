@@ -3,26 +3,21 @@ import shutil
 import subprocess
 import re
 import json
+import multiprocessing
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
-import multiprocessing
+from datetime import datetime, timezone
+
+# Add these imports
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+from utilities.fetch_repo import fetch_repo, get_owner_repo
+from utilities.response_wrapper import wrap_with_timestamp
 
 app = Flask(__name__)
 CORS(app)
 
 links_file = 'links.json'
-
-def clone_repo(repo_url: str, repo_path: str):
-    """Clone repo with optimizations like shallow clone."""
-    if os.path.exists(repo_path):
-        try:
-            subprocess.run(["git", "-C", repo_path, "pull"], check=True)
-            return
-        except subprocess.CalledProcessError:
-            shutil.rmtree(repo_path)  
-    
-    subprocess.run(["git", "clone", "--depth=1", repo_url, repo_path], check=True)
 
 def get_code_files(repo_path: str, extensions=None):
     """Retrieve list of relevant code files in repo."""
@@ -98,60 +93,58 @@ def save_to_json(repo_url, total_lines, comment_lines, coverage):
 
 @app.route("/analyze", methods=["POST"])
 def analyze_repository():
-    """Analyze repository for comment coverage."""
+    """Analyze repository for comment coverage via POST."""
     data = request.get_json()
     repo_url = data.get("repo_url")
 
     if not repo_url:
         return jsonify({"error": "GitHub repository URL is required"}), 400
 
-    repo_name = repo_url.rstrip("/").split("/")[-1]
-    repo_path = f"/tmp/{repo_name}"
-
     try:
-        clone_repo(repo_url, repo_path)  
+        fetch_res = fetch_repo(repo_url)
+        if isinstance(fetch_res, dict) and "error" in fetch_res:
+            return jsonify({"error": fetch_res["error"]}), 200
+
+        head_sha, repo_path = fetch_res
+
         code_files = get_code_files(repo_path)
         total_lines, comment_lines, coverage = calculate_comment_coverage(code_files)
 
         save_to_json(repo_url, total_lines, comment_lines, coverage)
 
-        shutil.rmtree(repo_path)  
+        shutil.rmtree(repo_path)
 
         return jsonify({"coverage": coverage})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-from datetime import datetime, timezone
-
-@app.route("/api/github/code-comment-coverage", methods=["GET"])
+@app.route("/api/github/code-comment-coverage", methods=["POST"])
 def analyze_repository_query():
-    """Analyze repository via query parameters."""
-    owner = request.args.get("owner")
-    repo = request.args.get("repo")
+    """Analyze repository for comment coverage via GET query parameters."""
+    # owner = request.args.get("owner")
+    # repo = request.args.get("repo")
 
-    if not owner or not repo:
-        return jsonify({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": [],
-            "message": "Both 'owner' and 'repo' query parameters are required"
-        }), 400
+    # if not owner or not repo:
+    #     return jsonify({
+    #         "timestamp": datetime.now(timezone.utc).isoformat(),
+    #         "data": [],
+    #         "message": "Both 'owner' and 'repo' query parameters are required"
+    #     }), 400
 
-    repo_url = f"https://github.com/{owner}/{repo}"
-    repo_path = f"/tmp/{repo}"
+    # repo_url = f"https://github.com/{owner}/{repo}"
+    data = request.get_json()
 
     try:
-        clone_repo(repo_url, repo_path)
+        repo_url = data["repo_url"]
+        fetch_res = fetch_repo(repo_url)
+        owner, repo = get_owner_repo(repo_url)
+        if isinstance(fetch_res, dict) and "error" in fetch_res:
+            return jsonify({"error": fetch_res["error"]}), 200
+        head_sha, repo_path = fetch_res
         code_files = get_code_files(repo_path)
         total_lines, comment_lines, coverage = calculate_comment_coverage(code_files)
-
         save_to_json(repo_url, total_lines, comment_lines, coverage)
-        shutil.rmtree(repo_path)
-
         response = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": [
-                {
                     "repo_url": repo_url,
                     "owner": owner,
                     "repo": repo,
@@ -159,17 +152,13 @@ def analyze_repository_query():
                     "comment_lines": comment_lines,
                     "coverage": coverage
                 }
-            ]
-        }
-
-        return jsonify(response)
+        return jsonify(wrap_with_timestamp(response)), 200
     except Exception as e:
         return jsonify({
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "data": [],
             "message": f"Error: {str(e)}"
         }), 500
-
 
 @app.route("/get_coverage_data", methods=["GET"])
 def get_coverage_data():
@@ -189,3 +178,5 @@ def get_coverage_data():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5006)
+
+
