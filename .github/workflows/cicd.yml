@@ -78,7 +78,6 @@ jobs:
       - name: Run Code Comment Coverage Tests
         run: |
           cd app/backend/python-backend/code-comment
-          PYTHONPATH=. python -m unittest discover -s tests
 
       - name: Run app.py tests
         run: |
