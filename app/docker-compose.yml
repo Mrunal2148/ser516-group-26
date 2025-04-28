@@ -97,6 +97,17 @@ services:
     networks:
       - app-network
 
+  defects-triaged:
+    build:
+      context: ./backend/python-backend/defects-triaged
+      dockerfile: Dockerfile
+    ports:
+        - "8005:8005"
+    environment:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+        - app-network
+
 networks:
   app-network:
     driver: bridge
