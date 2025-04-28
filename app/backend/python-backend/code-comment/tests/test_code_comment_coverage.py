@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 from flask import json
-from code_comment_app import app, save_to_json, clone_repo, get_code_files, process_file, calculate_comment_coverage
+from code_comment_app import app, save_to_json, get_code_files, process_file, calculate_comment_coverage
 
 import sys
 
