@@ -97,6 +97,32 @@ services:
     networks:
       - app-network
 
+  fogindex:
+    build:
+      context: ./fogindex
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    volumes:
+      - shared-repos:/shared/repos
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+
+  middleware:
+    build:
+      context: ../
+      dockerfile: DockerfileMiddleware
+    ports:
+      - "6000:6000"
+    volumes:
+      - shared-repos:/shared/repos
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
