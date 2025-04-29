@@ -184,19 +184,21 @@ async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
 
         return {
             "timestamp": datetime.utcnow().isoformat() + "Z",
-            "data": [
-                {"class_name": "Total Defects", "score": total_defects},
-                {"class_name": "Triaged Defects", "score": triaged_defects},
-                {"class_name": "Open Triaged Defects", "score": open_triaged_defects},
-                {"class_name": "Closed Triaged Defects", "score": closed_triaged_defects},
-                {"class_name": "Defect Triaged Percentage", "score": triaged_percentage},
-                {"class_name": "Critical Severity Defects", "score": severity_counts["critical"]},
-                {"class_name": "High Severity Defects", "score": severity_counts["high"]},
-                {"class_name": "Medium Severity Defects", "score": severity_counts["medium"]},
-                {"class_name": "Low Severity Defects", "score": severity_counts["low"]},
-            ],
-            "data_by_day": data_by_day,  # Time-series data for frontend
-            "matched_label_distribution": dict(matched_label_counts)
+            "data": {
+                "defect_data": [
+                    {"class_name": "Total Defects", "score": total_defects},
+                    {"class_name": "Triaged Defects", "score": triaged_defects},
+                    {"class_name": "Open Triaged Defects", "score": open_triaged_defects},
+                    {"class_name": "Closed Triaged Defects", "score": closed_triaged_defects},
+                    {"class_name": "Defect Triaged Percentage", "score": triaged_percentage},
+                    {"class_name": "Critical Severity Defects", "score": sum(severity_counts["critical"].values())},
+                    {"class_name": "High Severity Defects", "score": sum(severity_counts["high"].values())},
+                    {"class_name": "Medium Severity Defects", "score": sum(severity_counts["medium"].values())},
+                    {"class_name": "Low Severity Defects", "score": sum(severity_counts["low"].values())},
+                ],
+                "data_by_day": data_by_day,
+                "matched_label_distribution": dict(matched_label_counts)
+            }
         }
 
     except Exception as e:

@@ -54,14 +54,14 @@ const DefectsTriaged = () => {
   if (!stats) return <p>No data available.</p>;
 
   // Prepare a flat map from stats.data
-  const defectMetrics = stats?.data?.reduce((acc, item) => {
+  const defectMetrics = stats?.data?.defect_data?.reduce((acc, item) => {
     const key = item.class_name.toLowerCase().replace(/\s+/g, "_");
     acc[key] = item.score;
     return acc;
   }, {});
 
   // Extract time-series data from `data_by_day`
-  const dataByDay = stats?.data_by_day || [];
+  const dataByDay = stats?.data?.data_by_day || [];
 
   // NEW: Extract by_severity and by_priority separately
   const by_severity = stats?.by_severity || {};
