@@ -42,8 +42,16 @@ SEVERITY_LABELS = {
 async def health_check():
     return {"status": "healthy"}
 
-@app.get("/metrics/defects-triaged")
-async def get_defects_triaged(owner: str = Query(...), repo: str = Query(...)):
+@app.get("/defects-triaged")
+async def get_defects_triaged(repo: str = Query(...)):
+    try:
+        # Parse the repo_url to get owner and repo
+        parts = repo.strip("/").split("/")
+        owner = parts[-2]
+        repo = parts[-1]
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid repo_url format. Expected format like https://github.com/owner/repo")
+    
     repo_api_url = f"https://api.github.com/repos/{owner}/{repo}"
     headers = {
         "Accept": "application/vnd.github+json",

@@ -28,8 +28,10 @@ const DefectsTriaged = () => {
 
     const fetchDefectStats = async () => {
       try {
+        const combinedRepo = `${owner}/${repo}`;
+        const encodedRepo = encodeURIComponent(combinedRepo);
         const statsRes = await fetch(
-          `http://localhost:8005/metrics/defects-triaged?owner=${owner}&repo=${repo}`,
+          `http://localhost:8005/defects-triaged?repo=${encodedRepo}`,
           { method: "GET", headers: { "Content-Type": "application/json" } }
         );
 
