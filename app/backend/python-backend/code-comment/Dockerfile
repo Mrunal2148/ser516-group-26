@@ -10,6 +10,6 @@ COPY utilities/ utilities/
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5006
+EXPOSE 5000
 
 CMD ["python", "code_comment_app.py"]
