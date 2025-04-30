@@ -13,7 +13,8 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create minimal runtime image
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-jammy
+
 
 WORKDIR /app
 
