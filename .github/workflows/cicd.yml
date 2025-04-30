@@ -3,14 +3,12 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Period-4
-      - Dev-Group-2
+      - '*'
     tags:
       - '*'  
   pull_request:
     branches:
-      - Period-3
-      - dev
+      - '*'
   release:
     types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
@@ -32,7 +30,7 @@ jobs:
 
       - name: Build and Tag Docker Images
         run: |
-          docker build -t app-java-backend ./app/backend
+          docker build -t app-java-backend ./app/backend/defects-removed-service
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
