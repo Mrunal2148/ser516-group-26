@@ -68,7 +68,7 @@ def get_metrics_fogindex():
 
         payload = {config.payload_key: repo_url}
         results = {}
-        fog_index = requests.post("http://fogindex:5050/api/fog-index/calculate", json=payload)
+        fog_index = requests.post("http://fogindex:5050/fog-index/calculate", json=payload)
         results["fog-index"] = fog_index.json()
         return jsonify({"results": results}), 200
 
