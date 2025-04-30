@@ -50,7 +50,7 @@ jobs:
           docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
-          docker tag fogindex kgulbarg/fogindex:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
           
           docker push mkapure/app-java-backend:$VERSION
           docker push mkapure/app-python-backend:$VERSION
@@ -59,7 +59,7 @@ jobs:
           docker push mkapure/app-fan-in-service:$VERSION
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
-          docker push kgulbarg/fogindex:$VERSION
+          docker push mkapure/fogindex:$VERSION
 
   test:
     runs-on: ubuntu-latest
