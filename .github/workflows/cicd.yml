@@ -30,7 +30,7 @@ jobs:
 
       - name: Build and Tag Docker Images
         run: |
-          docker build -t app-java-defects-backend ./app/backend/defects-removed-service
+          docker build -t defects-stats ./app/backend/defects-removed-service
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
@@ -50,7 +50,7 @@ jobs:
         run: |
           VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
-          docker tag app-java-defects-backend mkapure/app-java-defects-backend:$VERSION
+          docker tag defects-stats mkapure/defects-stats:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -58,7 +58,7 @@ jobs:
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
           
-          docker push mkapure/app-java-defects-backend:$VERSION
+          docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
@@ -67,7 +67,7 @@ jobs:
           docker push mkapure/app-github-service:$VERSION
 
 
-          docker tag app-java-defects-backend mkapure/app-java-defects-backend:$VERSION
+          docker tag defects-stats mkapure/defects-stats:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -76,7 +76,7 @@ jobs:
           docker tag app-github-service mkapure/app-github-service:$VERSION
 
 
-          docker push mkapure/app-java-defects-backend:latest
+          docker push mkapure/defects-stats:latest
           docker push mkapure/app-python-backend:latest
           docker push mkapure/app-code-comment-coverage-backend:latest
           docker push mkapure/app-fan-in-fan-out-api:latest
@@ -85,7 +85,7 @@ jobs:
           docker push mkapure/app-github-service:latest
 
 
-          docker push mkapure/app-java-defects-backend:$VERSION
+          docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
