@@ -6,6 +6,6 @@ RUN gradle bootJar
 FROM openjdk:21-jdk-slim
 WORKDIR /app
 COPY --from=build /home/app/build/libs/*.jar app.jar
-EXPOSE 5050
+EXPOSE 5000
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
