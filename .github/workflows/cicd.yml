@@ -3,14 +3,12 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Period-4
-      - Dev-Group-2
+      - '*'
     tags:
       - '*'  
   pull_request:
     branches:
-      - Period-3
-      - dev
+      - '*'
   release:
     types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
