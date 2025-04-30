@@ -59,5 +59,21 @@ def get_metrics_grp_6():
     except Exception as e:
         return jsonify({"message": f"Error occurred while cloning repository or fetching metrics: {e}"}), 500
 
+@app.route("/metrics-fogindex", methods=["POST"])
+def get_metrics_fogindex():
+    try:
+        data = request.get_json()
+        repo_url = data["repo_url"]
+        head_sha, repo_dir = clone_repo(repo_url)
+
+        payload = {config.payload_key: repo_url}
+        results = {}
+        fog_index = requests.post("http://fogindex:5000/fog-index/calculate", json=payload)
+        results["fog-index"] = fog_index.json()
+        return jsonify({"results": results}), 200
+
+    except Exception as e:
+        return jsonify({"message": f"Error occurred while cloning repository or fetching metrics: {e}"}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000)

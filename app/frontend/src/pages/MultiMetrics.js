@@ -6,8 +6,8 @@ import CodeComment from "../components/CodeComment";
 import TestChurnDisplay from "../components/TestChurnDisplay";
 import MetricsForm from "../components/MetricsForm";
 import TestCoverage from "../components/TestCoverage";
+
 import "../components/css/MultiMetrics.css";
-import DefectsTriaged from "../components/DefectsTriaged"
 
 const MultiMetrics = () => {
   const location = useLocation();
@@ -63,14 +63,7 @@ const MultiMetrics = () => {
             </section>
           )}
 
-          {selectedMetrics.includes("defects-triaged") && (
-            <section className="metric-section">
-              <h3>DEFECTS TRIAGED</h3>
-              <DefectsTriaged githubUrl={githubUrl} owner={owner} repo={repo} />
-            </section>
-          )}
-
-        {(selectedMetrics.includes("fan-in-fan-out"))&& (
+          {(selectedMetrics.includes("fan-in-fan-out"))&& (
             <MetricsForm githubUrl={githubUrl} owner={owner} repo={repo} />
           )}
 

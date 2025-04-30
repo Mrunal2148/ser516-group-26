@@ -1,16 +1,16 @@
-package com.myproject.models;
+package com.example;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class BugStatsResponse {
+public class FogIndexResponse {
     private Date timestamp;
     private List<Map<String, Object>> data;
 
-    public BugStatsResponse() {}
+    public FogIndexResponse() {}
 
-    public BugStatsResponse(Date timestamp, List<Map<String, Object>> data) {
+    public FogIndexResponse(Date timestamp, List<Map<String, Object>> data) {
         this.timestamp = timestamp;
         this.data = data;
     }
