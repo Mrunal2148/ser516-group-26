@@ -3,6 +3,7 @@ package com.myproject.controllers;
 import com.myproject.services.DefectsRemovedService;
 import com.myproject.models.BugStatsResponse;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -19,18 +20,9 @@ public class DefectsRemovedController {
     }
 
     @GetMapping("/defects-stats")
-public BugStatsResponse getBugStatistics(@RequestParam String owner, @RequestParam String repo) {
-    Map<String, Object> statsMap = defectsRemovedService.getBugStatistics(owner, repo);
-
-    // Wrap the map into a list
-    List<Map<String, Object>> wrappedList = Collections.singletonList(statsMap);
-
-    return new BugStatsResponse(new Date(), wrappedList);
-}
-
-    @GetMapping("/defects-history")
-    public BugStatsResponse getDefectsHistory() {
-        List<Map<String, Object>> historyData = defectsRemovedService.getDefectsHistory();
-        return new BugStatsResponse(new Date(), historyData);
+    public BugStatsResponse getBugStatistics(@RequestParam String owner, @RequestParam String repo) {
+        Map<String, Object> statsMap = defectsRemovedService.getBugStatistics(owner, repo);
+        List<Map<String, Object>> wrappedList = Collections.singletonList(statsMap);
+        return new BugStatsResponse(new Date(), wrappedList);
     }
 }
