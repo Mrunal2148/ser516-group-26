@@ -178,7 +178,8 @@ async def get_defects_triaged(repo: str = Query(...)):
 
         # Format the results for the frontend with the summary metrics
         data_by_day = []
-        for day in sorted(open_counts.keys()):
+        for i in range(90):
+            day = (past_date + timedelta(days=i)).date().isoformat()
             data_by_day.append({
                 "date": day,
                 "open_defects": open_counts.get(day, 0),
@@ -189,6 +190,7 @@ async def get_defects_triaged(repo: str = Query(...)):
                 "medium_severity": severity_counts["medium"].get(day, 0),
                 "low_severity": severity_counts["low"].get(day, 0)
             })
+
 
         return {
             "timestamp": datetime.utcnow().isoformat() + "Z",
