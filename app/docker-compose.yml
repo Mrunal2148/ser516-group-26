@@ -94,8 +94,6 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
-    volumes:
-      - ${HOME}/Downloads:/downloads
 
 networks:
   app-network:

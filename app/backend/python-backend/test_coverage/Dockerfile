@@ -10,8 +10,9 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy app code and dependencies
-COPY requirements.txt .
-COPY ./templates /app/templates
+COPY requirements.txt ./
+COPY templates ./templates
+COPY . .
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 

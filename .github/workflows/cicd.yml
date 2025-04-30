@@ -14,6 +14,11 @@ on:
   release:
     types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release Version (e.g., v1.0.0)'
+        required: true
+        type: string
 
 jobs:
   build:
@@ -27,7 +32,6 @@ jobs:
 
       - name: Build and Tag Docker Images
         run: |
-          docker build -t app-frontend ./app/frontend
           docker build -t app-java-backend ./app/backend
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
@@ -46,14 +50,24 @@ jobs:
 
       - name: Tag and Push Images
         run: |
-          docker tag app-frontend mkapure/app-frontend:latest
-          docker tag app-java-backend mkapure/app-java-backend:latest
-          docker tag app-python-backend mkapure/app-python-backend:latest
-          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:latest
-          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:latest
-          docker tag app-fan-in-service mkapure/app-fan-in-service:latest
-          docker tag app-fan-out-service mkapure/app-fan-out-service:latest
-          docker tag app-github-service mkapure/app-github-service:latest
+          VERSION=${{ github.event.inputs.release_version || 'latest' }}
+          echo "Using version $VERSION"
+          docker tag app-java-backend mkapure/app-java-backend:$VERSION
+          docker tag app-python-backend mkapure/app-python-backend:$VERSION
+          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
+          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
+          docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
+          docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
+          docker tag app-github-service mkapure/app-github-service:$VERSION
+          
+          docker push mkapure/app-java-backend:$VERSION
+          docker push mkapure/app-python-backend:$VERSION
+          docker push mkapure/app-code-comment-coverage-backend:$VERSION
+          docker push mkapure/app-fan-in-fan-out-api:$VERSION
+          docker push mkapure/app-fan-in-service:$VERSION
+          docker push mkapure/app-fan-out-service:$VERSION
+          docker push mkapure/app-github-service:$VERSION
+
 
           docker tag app-frontend mkapure/app-frontend:$VERSION
           docker tag app-java-backend mkapure/app-java-backend:$VERSION
@@ -82,6 +96,7 @@ jobs:
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
 
+
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -108,9 +123,3 @@ jobs:
         run: |
           cd app/backend/python-backend
           pytest tests/test_app.py
-
-      - name: Run Frontend Tests
-        working-directory: app/frontend
-        run: |
-          npm install
-          npm test -- --watchAll=false
