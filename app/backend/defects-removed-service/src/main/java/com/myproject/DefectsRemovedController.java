@@ -1,7 +1,7 @@
-package com.myproject.controllers;
+package com.myproject;
 
-import com.myproject.services.DefectsRemovedService;
-import com.myproject.models.BugStatsResponse;
+import com.myproject.DefectsRemovedService;
+import com.myproject.BugStatsResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;

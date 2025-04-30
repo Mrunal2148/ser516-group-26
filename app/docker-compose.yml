@@ -13,18 +13,19 @@ services:
 
   java-backend:
     build:
-      context: ./backend
+      context: ./backend/defects-removed-service
       dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
-      - "8080:8080"
-      
+      - "5000:5000"
     env_file:
       - .env
-
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}  # Securely pass the GitHub token
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+
 
   python-backend:
     build:
