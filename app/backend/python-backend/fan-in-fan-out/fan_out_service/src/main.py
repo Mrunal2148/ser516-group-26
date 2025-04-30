@@ -9,6 +9,7 @@ import json
 from typing import List, Dict, Any, Optional, Set
 import logging
 import traceback
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -39,6 +40,15 @@ class ScopeRequest(BaseModel):
 class MultiFunctionScopeRequest(BaseModel):
     selected_files: List[str]
     function_names: List[str]
+
+#classes for new resposnse   
+class ClassScore(BaseModel):
+    class_name: str
+    score: int
+
+class MetricsResponse(BaseModel):
+    timestamp: str
+    data: List[ClassScore]
     
 @app.on_event("startup")
 async def initialize_javaparser():
@@ -75,6 +85,30 @@ async def initialize_javaparser():
             def __init__(self):
                 self.StaticJavaParser = StaticJavaParser
                 self.VoidVisitorAdapter = VoidVisitorAdapter
+            
+            def extract_class_name(self, source_code: str) -> str:
+            
+                try:
+                    compilation_unit = self.StaticJavaParser.parse(source_code)
+                    
+                    package_name = ""
+                    if compilation_unit.getPackageDeclaration().isPresent():
+                        package_name = compilation_unit.getPackageDeclaration().get().getNameAsString()
+                    
+                    class_name = ""
+                    if compilation_unit.getPrimaryType().isPresent():
+                        class_name = compilation_unit.getPrimaryType().get().getNameAsString()
+                    else:
+                        types = compilation_unit.getTypes()
+                        if types.size() > 0:
+                            class_name = types.get(0).getNameAsString()
+                    
+                    if package_name and class_name:
+                        return f"{package_name}.{class_name}"
+                    return class_name
+                except Exception as e:
+                    logger.error(f"Error extracting class name: {str(e)}")
+                    return "unknown.Class"
             
             def analyze_fan_out(self, source_code: str, target_method: str) -> int:
                 """
@@ -174,21 +208,34 @@ def get_analyzer():
         return globals()['analyzer']
     return None
 
-def fan_out_metric(source_code: str, target: str, analyzer=None) -> int:
-    """
-    Calculate fan-out metric using JavaParser (with regex fallback)
+def get_current_timestamp():
+   
+    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+def extract_class_name_regex(source_code: str) -> str:
     
-    Args:
-        source_code: Java source code
-        target: Target method name
-        analyzer: Optional JavaParser analyzer instance
-        
-    Returns:
-        Fan-out metric count
-    """
+    import re
+    
+    package_match = re.search(r'package\s+([a-zA-Z0-9_.]+);', source_code)
+    package_name = package_match.group(1) if package_match else ""
+    
+    class_match = re.search(r'(?:public|private|protected)?\s+class\s+([a-zA-Z0-9_]+)', source_code)
+    class_name = class_match.group(1) if class_match else "UnknownClass"
+    
+    if package_name:
+        return f"{package_name}.{class_name}"
+    return class_name
+
+def fan_out_metric(source_code: str, target: str, analyzer=None) -> (int, str):
+   
     try:
+        class_name = "unknown.Class"
         if analyzer:
-            return analyzer.analyze_fan_out(source_code, target)
+            class_name = analyzer.extract_class_name(source_code)
+            fan_out = analyzer.analyze_fan_out(source_code, target)
+            return fan_out, class_name
+        
+        class_name = extract_class_name_regex(source_code)
         
         import re
         
@@ -200,7 +247,7 @@ def fan_out_metric(source_code: str, target: str, analyzer=None) -> int:
         method_match = method_pattern.search(source_code)
         
         if not method_match:
-            return 0
+            return 0, class_name
             
         method_body = method_match.group(2)
         
@@ -211,12 +258,12 @@ def fan_out_metric(source_code: str, target: str, analyzer=None) -> int:
         if target in unique_calls:
             unique_calls.remove(target)
             
-        return len(unique_calls)
+        return len(unique_calls), class_name
         
     except Exception as e:
         logger.error(f"Error in fan_out_metric: {str(e)}")
         logger.error(traceback.format_exc())
-        return 0
+        return 0, "unknown.Class"
 
 @app.post("/upload-folder")
 async def upload_folder(folder: UploadFile = File(...)):
@@ -282,8 +329,7 @@ async def calculate_scoped_fan_out(
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_dir)
             
-            results = {}
-            total_fan_out = 0
+            data = []
             
             for file_path in scope_request.selected_files:
                 full_path = os.path.join(temp_dir, file_path)
@@ -291,17 +337,18 @@ async def calculate_scoped_fan_out(
                 if os.path.exists(full_path) and file_path.endswith('.java'):
                     with open(full_path, 'r', encoding='utf-8') as f:
                         content = f.read()
-                        file_fan_out = fan_out_metric(content, scope_request.function_name, analyzer)
-                        results[file_path] = file_fan_out
-                        total_fan_out += file_fan_out
+                        file_fan_out, class_name = fan_out_metric(content, scope_request.function_name, analyzer)
+                        data.append(ClassScore(
+                            class_name=class_name, 
+                            score=file_fan_out
+                        ))
                 else:
-                    results[file_path] = "File not found or not a Java file"
+                    logger.warning(f"File not found or not a Java file: {file_path}")
             
-            return {
-                "function_name": scope_request.function_name,
-                "total_fan_out": total_fan_out,
-                "per_file_results": results
-            }
+            return MetricsResponse(
+                timestamp=get_current_timestamp(),
+                data=data
+            ).dict()
             
         except zipfile.BadZipFile:
             raise HTTPException(status_code=400, detail="Invalid ZIP file")
@@ -327,14 +374,25 @@ async def calculate_multi_fan_out(
         content = await file.read()
         source_code = content.decode('utf-8')
         
-        results = {}
-        for function_name in function_names_list:
-            fan_out = fan_out_metric(source_code, function_name, analyzer)
-            results[function_name] = fan_out
+        class_name = "unknown.Class"
+        if analyzer:
+            class_name = analyzer.extract_class_name(source_code)
+        else:
+            class_name = extract_class_name_regex(source_code)
         
-        return {
-            "results": results
-        }
+        data = []
+        for function_name in function_names_list:
+            fan_out, _ = fan_out_metric(source_code, function_name, analyzer)
+            data.append(ClassScore(
+                class_name=f"{class_name}#{function_name}", 
+                score=fan_out
+            ))
+        
+        return MetricsResponse(
+            timestamp=get_current_timestamp(),
+            data=data
+        ).dict()
+        
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON for function_names")
     except Exception as e:
@@ -375,32 +433,33 @@ async def calculate_scoped_multi_fan_out(
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_dir)
             
-            all_results = {}
+            data = []
             
-            for function_name in scope_request.function_names:
-                results = {}
-                total_fan_out = 0
+            for file_path in scope_request.selected_files:
+                full_path = os.path.join(temp_dir, file_path)
                 
-                for file_path in scope_request.selected_files:
-                    full_path = os.path.join(temp_dir, file_path)
-                    
-                    if os.path.exists(full_path) and file_path.endswith('.java'):
-                        with open(full_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                            file_fan_out = fan_out_metric(content, function_name, analyzer)
-                            results[file_path] = file_fan_out
-                            total_fan_out += file_fan_out
-                    else:
-                        results[file_path] = "File not found or not a Java file"
-                
-                all_results[function_name] = {
-                    "total_fan_out": total_fan_out,
-                    "per_file_results": results
-                }
+                if os.path.exists(full_path) and file_path.endswith('.java'):
+                    with open(full_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        class_name = "unknown.Class"
+                        if analyzer:
+                            class_name = analyzer.extract_class_name(content)
+                        else:
+                            class_name = extract_class_name_regex(content)
+                        
+                        for function_name in scope_request.function_names:
+                            file_fan_out, _ = fan_out_metric(content, function_name, analyzer)
+                            data.append(ClassScore(
+                                class_name=f"{class_name}#{function_name}", 
+                                score=file_fan_out
+                            ))
+                else:
+                    logger.warning(f"File not found or not a Java file: {file_path}")
             
-            return {
-                "results": all_results
-            }
+            return MetricsResponse(
+                timestamp=get_current_timestamp(),
+                data=data
+            ).dict()
             
         except zipfile.BadZipFile:
             raise HTTPException(status_code=400, detail="Invalid ZIP file")
@@ -434,12 +493,17 @@ async def calculate_fan_out(
         content = await file.read()
         source_code = content.decode('utf-8')
         
-        fan_out = fan_out_metric(source_code, function_name, analyzer)
+        fan_out, class_name = fan_out_metric(source_code, function_name, analyzer)
         
-        return {
-            "function_name": function_name,
-            "fan_out": fan_out
-        }
+        return MetricsResponse(
+            timestamp=get_current_timestamp(),
+            data=[
+                ClassScore(
+                    class_name=class_name,
+                    score=fan_out
+                )
+            ]
+        ).dict()
     except Exception as e:
         logger.error(f"Error in calculate_fan_out: {str(e)}")
         logger.error(traceback.format_exc())

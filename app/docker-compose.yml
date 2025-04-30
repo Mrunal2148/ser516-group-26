@@ -1,4 +1,3 @@
-version: '3'
 services:
   frontend:
     build:
@@ -84,6 +83,19 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+  
+  test-coverage-service:
+    build:
+      context: ./backend/python-backend/test_coverage
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+    volumes:
+      - ${HOME}/Downloads:/downloads
 
 networks:
   app-network:
