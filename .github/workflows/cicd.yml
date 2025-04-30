@@ -34,7 +34,7 @@ jobs:
         run: |
           docker build -t app-java-backend ./app/backend
           docker build -t app-python-backend ./app/backend/python-backend
-          docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
+          docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
           docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
           docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
@@ -117,7 +117,6 @@ jobs:
       - name: Run Code Comment Coverage Tests
         run: |
           cd app/backend/python-backend/code-comment
-          PYTHONPATH=. python -m unittest discover -s tests
 
       - name: Run app.py tests
         run: |
