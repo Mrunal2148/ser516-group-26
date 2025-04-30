@@ -50,7 +50,7 @@ jobs:
         run: |
           VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
-          docker tag app-java-backend mkapure/app-java-backend:$VERSION
+          docker tag app-java-backend mkapure/app-java-defects-backend:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -58,7 +58,7 @@ jobs:
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
           
-          docker push mkapure/app-java-backend:$VERSION
+          docker push mkapure/app-java-defects-backend:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
@@ -67,7 +67,7 @@ jobs:
           docker push mkapure/app-github-service:$VERSION
 
 
-          docker tag app-java-backend mkapure/app-java-backend:$VERSION
+          docker tag app-java-backend mkapure/app-java-defects-backend:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -76,7 +76,7 @@ jobs:
           docker tag app-github-service mkapure/app-github-service:$VERSION
 
 
-          docker push mkapure/app-java-backend:latest
+          docker push mkapure/app-java-defects-backend:latest
           docker push mkapure/app-python-backend:latest
           docker push mkapure/app-code-comment-coverage-backend:latest
           docker push mkapure/app-fan-in-fan-out-api:latest
@@ -85,7 +85,7 @@ jobs:
           docker push mkapure/app-github-service:latest
 
 
-          docker push mkapure/app-java-backend:$VERSION
+          docker push mkapure/app-java-defects-backend:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
