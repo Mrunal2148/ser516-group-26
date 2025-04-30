@@ -51,6 +51,11 @@ const RunMetrics = () => {
         case "test-churn":
           navigate("/testChurn", { state: { owner, repo } });
           break;
+        case "defects-triaged":
+          console.log({ selectedMetrics, githubUrl: selectedLink, owner, repo });
+          navigate("/defecttriaged", { state: {githubUrl: selectedLink, owner, repo } });
+          console.log({ selectedMetrics, githubUrl: selectedLink, owner, repo });
+          break;
         case "fan-in-fan-out":
           navigate("/multi-metrics", { state: { selectedMetrics, githubUrl: selectedLink, owner, repo } });
           break;
@@ -150,6 +155,15 @@ const RunMetrics = () => {
           <label htmlFor="test-coverage">Test Coverage</label>
         </div>
 
+        <div className="checkbox">
+          <input
+            type="checkbox"
+            id="defects-triaged"
+            checked={selectedMetrics.includes("defects-triaged")}
+            onChange={() => handleMetricChange("defects-triaged")}
+          />
+          <label htmlFor="defects-triaged">Defects Triaged</label>
+        </div>
         <div className="checkbox">
           <input
             type="checkbox"
