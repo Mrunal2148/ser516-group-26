@@ -31,7 +31,7 @@ const DefectsTriaged = () => {
         const combinedRepo = `${owner}/${repo}`;
         const encodedRepo = encodeURIComponent(combinedRepo);
         const statsRes = await fetch(
-          `http://localhost:8005/defects-triaged?repo=${encodedRepo}`,
+          `http://localhost:5000/defects-triaged?repo=${encodedRepo}`,
           { method: "GET", headers: { "Content-Type": "application/json" } }
         );
 
