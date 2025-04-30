@@ -32,11 +32,12 @@ jobs:
         run: |
           docker build -t defects-stats ./app/backend/defects-removed-service
           docker build -t app-python-backend ./app/backend/python-backend
-          docker build -t app-code-comment-coverage-backend ./app/backend/python-backend/code-comment
+          docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
           docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
           docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
           docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
+          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
 
       - name: Log in to Docker Hub
         run: |
@@ -57,6 +58,7 @@ jobs:
           docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
           
           docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
@@ -65,6 +67,7 @@ jobs:
           docker push mkapure/app-fan-in-service:$VERSION
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
+          docker push mkapure/fogindex:$VERSION
 
 
           docker tag defects-stats mkapure/defects-stats:$VERSION
