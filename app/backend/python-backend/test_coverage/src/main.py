@@ -9,7 +9,7 @@ from datetime import datetime
 
 # Added: Common utility imports
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 from utilities.fetch_repo import fetch_repo, get_owner_repo
 from utilities.response_wrapper import wrap_with_timestamp
 
@@ -123,3 +123,6 @@ def test_coverage():
         return jsonify({"error": str(e)}), 500
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8004, debug=False)
