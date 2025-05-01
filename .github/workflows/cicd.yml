@@ -123,6 +123,9 @@ jobs:
           cd app/backend/python-backend
           pytest tests/test_app.py
 
+      - name: Make gradlew executable
+        run: chmod +x app/fogindex/gradlew
+
       - name: Run FogIndex Tests
         run: |
           cd app/fogindex
