@@ -18,7 +18,7 @@ public class FetchRepoTest {
     @Test
     public void testFetchRepoWithMalformedUrl() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            FetchRepo.fetchRepo("https://github.com/invalid/repo/");
+            FetchRepo.fetchRepo("https://github.com/invalid/repo/malformed-url");
         });
         assertTrue(exception.getMessage().contains("Malformed repository URL"));
     }
