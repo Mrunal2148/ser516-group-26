@@ -24,7 +24,7 @@ public class FogIndexController {
     private final ObjectMapper mapper = new ObjectMapper();
     private final FogIndexCalculator calculator = new FogIndexCalculator();  //  Use a single instance
 
-    @RequestMapping("/fogindex")
+    @PostMapping("/fogindex")
     public FogIndexResponse calculateFogIndex(@RequestBody Map<String, String> body) {
     String githubUrl = body.get("repo_url");
         try {
