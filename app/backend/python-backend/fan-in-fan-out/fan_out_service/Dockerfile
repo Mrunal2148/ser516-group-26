@@ -9,5 +9,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ .
 
-EXPOSE 8002
+EXPOSE 5000
 CMD ["python3", "main.py"]
