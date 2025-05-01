@@ -3,14 +3,12 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - Period-4
-      - Dev-Group-2
+      - '*'  
     tags:
       - '*'  
   pull_request:
     branches:
-      - Period-3
-      - dev
+      - '*'  
   release:
     types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
@@ -32,7 +30,7 @@ jobs:
 
       - name: Build and Tag Docker Images
         run: |
-          docker build -t defects-stats ./app/backend/defects-removed-service
+          # docker build -t defects-stats ./app/backend/defects-removed-service
           docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
@@ -54,7 +52,7 @@ jobs:
         run: |
           VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
-          docker tag defects-stats mkapure/defects-stats:$VERSION
+          # docker tag defects-stats mkapure/defects-stats:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -64,7 +62,7 @@ jobs:
           docker tag app-defects-triage mkapure/app-defects-triage:$VERSION
           docker tag fogindex mkapure/fogindex:$VERSION
           
-          docker push mkapure/defects-stats:$VERSION
+          # docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
@@ -74,7 +72,7 @@ jobs:
           docker push mkapure/fogindex:$VERSION
 
 
-          docker tag defects-stats mkapure/defects-stats:$VERSION
+          # docker tag defects-stats mkapure/defects-stats:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -84,7 +82,7 @@ jobs:
           docker tag fogindex mkapure/fogindex:$VERSION
 
 
-          docker push mkapure/defects-stats:latest
+          # docker push mkapure/defects-stats:latest
           docker push mkapure/app-python-backend:latest
           docker push mkapure/app-code-comment-coverage-backend:latest
           docker push mkapure/app-fan-in-fan-out-api:latest
@@ -94,7 +92,7 @@ jobs:
           docker push mkapure/fogindex:latest
 
 
-          docker push mkapure/defects-stats:$VERSION
+          # docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
