@@ -108,8 +108,6 @@ services:
       - "5050:5000"
     volumes:
       - shared-repos:/shared/repos
-    environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
 
