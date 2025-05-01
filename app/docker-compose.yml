@@ -6,25 +6,28 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - java-backend
+      - defects-stats
       - python-backend
     networks:
       - app-network
 
-  java-backend:
+  defects-stats:
     build:
-      context: ./backend
+      context: ./backend/defects-removed-service
       dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
-      - "8080:8080"
-      
+
+      - "5000:5000"
+
     env_file:
       - .env
-
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}  # Securely pass the GitHub token
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+
 
   python-backend:
     build:
@@ -35,14 +38,16 @@ services:
     networks:
       - app-network
   
-  code-comment-coverage-backend:
+  code-comment-coverage:
     build:
-      context: ./backend/python-backend/code-comment
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: ./python-backend/code-comment/Dockerfile
     ports:
       - "5006:5006"  
     networks:
       - app-network
+    volumes:
+      - shared-repos:/shared/repos
       
   fan-in-fan-out-api:
     build:
@@ -95,6 +100,35 @@ services:
     networks:
       - app-network
 
+  fogindex:
+    build:
+      context: ./fogindex
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5000"
+    volumes:
+      - shared-repos:/shared/repos
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+
+  middleware:
+    build:
+      context: ../
+      dockerfile: DockerfileMiddleware
+    ports:
+      - "6000:6000"
+    volumes:
+      - shared-repos:/shared/repos
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  shared-repos:
