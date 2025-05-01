@@ -36,29 +36,31 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Set version from Git tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Determine VERSION
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "VERSION=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "VERSION=latest" >> $GITHUB_ENV
+          fi
 
       - name: Tag and Push Images
         run: |
-          VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
           docker tag defects-stats mkapure/defects-stats:$VERSION
-
-          
           docker push mkapure/defects-stats:$VERSION
-
-
-
           docker tag defects-stats mkapure/defects-stats:$VERSION
-
-
-       
-
-
-
           docker push mkapure/defects-stats:$VERSION
+        
+          docker tag defects-stats mkapure/defects-stats:latest
+          docker push mkapure/defects-stats:latest
+          docker tag defects-stats mkapure/defects-stats:latest
+          docker push mkapure/defects-stats:latest
 
 
 
@@ -87,3 +89,12 @@ jobs:
         run: |
           cd app/backend/python-backend
           pytest tests/test_app.py
+
+
+
+
+
+
+
+
+          
