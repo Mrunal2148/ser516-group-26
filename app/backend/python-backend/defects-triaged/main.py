@@ -43,10 +43,10 @@ async def health_check():
     return {"status": "healthy"}
 
 @app.post("/defects-triaged")
-async def get_defects_triaged(repo: str = Query(...)):
+async def get_defects_triaged(repo_name: str = Query(...)):
     try:
         # Parse the repo_url to get owner and repo
-        parts = repo.strip("/").split("/")
+        parts = repo_name.strip("/").split("/")
         owner = parts[-2]
         repo = parts[-1]
     except Exception:
