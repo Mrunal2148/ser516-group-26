@@ -122,3 +122,8 @@ jobs:
         run: |
           cd app/backend/python-backend
           pytest tests/test_app.py
+
+      - name: Run FogIndex Tests
+        run: |
+          cd app/fogindex
+          ./gradlew test
