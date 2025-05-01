@@ -28,10 +28,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and Tag Docker Images
-        run: |
-          docker build -t defects-stats ./app/backend/defects-removed-service
-
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -52,7 +48,6 @@ jobs:
       - name: Build and Tag Docker Images
         run: |
           echo "Using version $VERSION"
-          docker build -t defects-stats ./app/backend/defects-removed-service
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
