@@ -105,7 +105,7 @@ services:
       context: ./fogindex
       dockerfile: Dockerfile
     ports:
-      - "5050:5000"
+      - "5000:5000"
     volumes:
       - shared-repos:/shared/repos
     networks:
