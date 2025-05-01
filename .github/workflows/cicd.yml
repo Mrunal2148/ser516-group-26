@@ -32,7 +32,8 @@ jobs:
 
       - name: Build and Tag Docker Images
         run: |
-          docker build -t app-java-backend ./app/backend
+          docker build -t defects-stats ./app/backend/defects-removed-service
+          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
@@ -53,7 +54,7 @@ jobs:
         run: |
           VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
-          docker tag app-java-backend mkapure/app-java-backend:$VERSION
+          docker tag defects-stats mkapure/defects-stats:$VERSION
           docker tag app-python-backend mkapure/app-python-backend:$VERSION
           docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
           docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
@@ -61,8 +62,39 @@ jobs:
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
           docker tag app-defects-triage mkapure/app-defects-triage:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
           
-          docker push mkapure/app-java-backend:$VERSION
+          docker push mkapure/defects-stats:$VERSION
+          docker push mkapure/app-python-backend:$VERSION
+          docker push mkapure/app-code-comment-coverage-backend:$VERSION
+          docker push mkapure/app-fan-in-fan-out-api:$VERSION
+          docker push mkapure/app-fan-in-service:$VERSION
+          docker push mkapure/app-fan-out-service:$VERSION
+          docker push mkapure/app-github-service:$VERSION
+          docker push mkapure/fogindex:$VERSION
+
+
+          docker tag defects-stats mkapure/defects-stats:$VERSION
+          docker tag app-python-backend mkapure/app-python-backend:$VERSION
+          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
+          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
+          docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
+          docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
+          docker tag app-github-service mkapure/app-github-service:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
+
+
+          docker push mkapure/defects-stats:latest
+          docker push mkapure/app-python-backend:latest
+          docker push mkapure/app-code-comment-coverage-backend:latest
+          docker push mkapure/app-fan-in-fan-out-api:latest
+          docker push mkapure/app-fan-in-service:latest
+          docker push mkapure/app-fan-out-service:latest
+          docker push mkapure/app-github-service:latest
+          docker push mkapure/fogindex:latest
+
+
+          docker push mkapure/defects-stats:$VERSION
           docker push mkapure/app-python-backend:$VERSION
           docker push mkapure/app-code-comment-coverage-backend:$VERSION
           docker push mkapure/app-fan-in-fan-out-api:$VERSION
@@ -70,6 +102,7 @@ jobs:
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
           docker push mkapure/app-defects-triage:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
 
 
   test:
@@ -93,3 +126,11 @@ jobs:
         run: |
           cd app/backend/python-backend
           pytest tests/test_app.py
+
+      - name: Make gradlew executable
+        run: chmod +x app/fogindex/gradlew
+
+      - name: Run FogIndex Tests
+        run: |
+          cd app/fogindex
+          ./gradlew test

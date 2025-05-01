@@ -6,12 +6,12 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - java-backend
+      - defects-stats
       - python-backend
     networks:
       - app-network
 
-  java-backend:
+  defects-stats:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -23,6 +23,17 @@ services:
 
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}  # Securely pass the GitHub token
+    networks:
+      - app-network
+
+  fogindex:
+    build:
+      context: ./fogindex
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - shared-repos:/shared/repos
     networks:
       - app-network
 
@@ -118,6 +129,9 @@ services:
         - "5000:5000"
     environment:
         - GITHUB_TOKEN=${GITHUB_TOKEN}
+
+    volumes:
+      - shared-repos:/shared/repos
     networks:
         - app-network
 
