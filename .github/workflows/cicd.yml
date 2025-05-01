@@ -54,7 +54,7 @@ jobs:
           docker tag defects-stats mkapure/defects-stats:$VERSION
 
 
-          docker push mkapure/defects-stats:latest
+       
 
 
 
