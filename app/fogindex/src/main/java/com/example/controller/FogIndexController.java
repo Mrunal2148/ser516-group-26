@@ -18,14 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @RestController
-@RequestMapping("/fog-index")
 @CrossOrigin(origins = "*")
 public class FogIndexController {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final FogIndexCalculator calculator = new FogIndexCalculator();  //  Use a single instance
 
-    @PostMapping("/calculate")
+    @PostMapping("/fogindex")
     public FogIndexResponse calculateFogIndex(@RequestBody Map<String, String> body) {
     String githubUrl = body.get("repo_url");
         try {
@@ -41,7 +40,7 @@ public class FogIndexController {
         }
     }
 
-    @RequestMapping(value = "/calculate", method = RequestMethod.OPTIONS)
+    @RequestMapping(value = "/fogindex", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handlePreflight() {
         return ResponseEntity.ok().build();
     }
