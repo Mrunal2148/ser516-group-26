@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/github")
 public class DefectsRemovedController {
 
     private final DefectsRemovedService defectsRemovedService;
@@ -19,8 +18,13 @@ public class DefectsRemovedController {
         this.defectsRemovedService = defectsRemovedService;
     }
 
-    @GetMapping("/defects-stats")
-    public BugStatsResponse getBugStatistics(@RequestParam String repoUrl) {
+    @PostMapping("/defects-stats")
+    public BugStatsResponse getBugStatistics(@RequestBody Map<String, String> body) {
+        String repoUrl = body.get("repo_url");
+        if (repoUrl == null || !repoUrl.startsWith("https://github.com/")) {
+            throw new IllegalArgumentException("Invalid or missing 'repo_url'");
+        }
+
         String[] parts = extractOwnerAndRepo(repoUrl);
         String owner = parts[0];
         String repo = parts[1];
@@ -31,11 +35,7 @@ public class DefectsRemovedController {
     }
 
     private String[] extractOwnerAndRepo(String repoUrl) {
-        try {
-            String[] segments = repoUrl.replace("https://github.com/", "").split("/");
-            return new String[]{segments[0], segments[1]};
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid GitHub repository URL format.");
-        }
+        String[] segments = repoUrl.replace("https://github.com/", "").split("/");
+        return new String[]{segments[0], segments[1]};
     }
 }

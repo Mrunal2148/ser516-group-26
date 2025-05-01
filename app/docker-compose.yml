@@ -6,12 +6,12 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - java-defects-backend
+      - defects-stats
       - python-backend
     networks:
       - app-network
 
-  java-defects-backend:
+  defects-stats:
     build:
       context: ./backend/defects-removed-service
       dockerfile: Dockerfile
