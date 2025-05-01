@@ -28,6 +28,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Build and Tag Docker Images
+        run: |
+          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -45,68 +48,18 @@ jobs:
             echo "VERSION=latest" >> $GITHUB_ENV
           fi
 
-      - name: Build and Tag Docker Images
-        run: |
-          echo "Using version $VERSION"
-          docker build -t app-python-backend ./app/backend/python-backend
-          docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
-          docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
-          docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
-          docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
-          docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
-          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
-
-      - name: Log in to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Set version from Git tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
       - name: Tag and Push Images
         run: |
-          VERSION=${{ github.event.inputs.release_version || 'latest' }}
           echo "Using version $VERSION"
-          docker tag app-python-backend mkapure/app-python-backend:$VERSION
-          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
-          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
-          docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
-          docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
-          docker tag app-github-service mkapure/app-github-service:$VERSION
           docker tag fogindex mkapure/fogindex:$VERSION
-          
-          docker push mkapure/app-python-backend:$VERSION
-          docker push mkapure/app-code-comment-coverage-backend:$VERSION
-          docker push mkapure/app-fan-in-fan-out-api:$VERSION
-          docker push mkapure/app-fan-in-service:$VERSION
-          docker push mkapure/app-fan-out-service:$VERSION
-          docker push mkapure/app-github-service:$VERSION
           docker push mkapure/fogindex:$VERSION
-
-
-          docker tag app-python-backend mkapure/app-python-backend:$VERSION
-          docker tag app-code-comment-coverage-backend mkapure/app-code-comment-coverage-backend:$VERSION
-          docker tag app-fan-in-fan-out-api mkapure/app-fan-in-fan-out-api:$VERSION
-          docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
-          docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
-          docker tag app-github-service mkapure/app-github-service:$VERSION
-
-
-          docker push mkapure/app-python-backend:latest
-          docker push mkapure/app-code-comment-coverage-backend:latest
-          docker push mkapure/app-fan-in-fan-out-api:latest
-          docker push mkapure/app-fan-in-service:latest
-          docker push mkapure/app-fan-out-service:latest
-          docker push mkapure/app-github-service:latest
-
-
-          docker push mkapure/app-python-backend:$VERSION
-          docker push mkapure/app-code-comment-coverage-backend:$VERSION
-          docker push mkapure/app-fan-in-fan-out-api:$VERSION
-          docker push mkapure/app-fan-in-service:$VERSION
-          docker push mkapure/app-fan-out-service:$VERSION
-          docker push mkapure/app-github-service:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
+          docker push mkapure/fogindex:$VERSION
+        
+          docker tag fogindex mkapure/fogindex:latest
+          docker push mkapure/fogindex:latest
+          docker tag fogindex mkapure/fogindex:latest
+          docker push mkapure/fogindex:latest
 
 
   test:
