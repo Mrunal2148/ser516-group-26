@@ -1,13 +1,13 @@
 package com.example.utils;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class FetchRepo {
 
@@ -34,7 +34,7 @@ public class FetchRepo {
             repoPath = repoPath.substring(0, repoPath.length() - 4);
         }
 
-        if (!Pattern.matches("^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$", repoPath)) {
+        if (!Pattern.matches("^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+/?$", repoPath)) {
             throw new IllegalArgumentException("Malformed repository URL. Ensure the URL points to a valid GitHub repository.");
         }
 
