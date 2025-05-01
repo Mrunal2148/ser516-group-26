@@ -96,6 +96,30 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+    volumes:
+      - ${HOME}/Downloads:/downloads
+  
+  clone_repo:
+      build:
+        context: ../
+        dockerfile: DockerfileMiddleware
+      ports:
+        - "6000:6000"
+      volumes:
+        - shared-repos:/shared/repos
+      networks:
+        - app-network
+
+  defects-triaged:
+    build:
+      context: ./backend/python-backend/defects-triaged
+      dockerfile: Dockerfile
+    ports:
+        - "5000:5000"
+    environment:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+        - app-network
 
 networks:
   app-network:

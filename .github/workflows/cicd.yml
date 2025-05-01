@@ -39,6 +39,7 @@ jobs:
           docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
           docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
           docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
+          docker build -t app-defects-triage ./app/backend/python-backend/defects-triage
 
       - name: Log in to Docker Hub
         run: |
@@ -59,6 +60,7 @@ jobs:
           docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
+          docker tag app-defects-triage mkapure/app-defects-triage:$VERSION
           
           docker push mkapure/app-java-backend:$VERSION
           docker push mkapure/app-python-backend:$VERSION
@@ -67,6 +69,7 @@ jobs:
           docker push mkapure/app-fan-in-service:$VERSION
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
+          docker push mkapure/app-defects-triage:$VERSION
 
 
   test:
