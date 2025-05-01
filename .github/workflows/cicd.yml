@@ -39,7 +39,7 @@ jobs:
           docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
           docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
           docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
-          docker build -t app-defects-triage ./app/backend/python-backend/defects-triage
+          docker build -t app-defects-triage ./app/backend/python-backend/defects-triaged
 
       - name: Log in to Docker Hub
         run: |
