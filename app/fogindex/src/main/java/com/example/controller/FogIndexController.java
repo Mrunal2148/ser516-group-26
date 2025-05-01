@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @RestController
-@RequestMapping("/fog-index")
+@RequestMapping("/fogindex")
 @CrossOrigin(origins = "*")
 public class FogIndexController {
 
