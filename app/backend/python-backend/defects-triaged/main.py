@@ -42,7 +42,7 @@ SEVERITY_LABELS = {
 async def health_check():
     return {"status": "healthy"}
 
-@app.get("/defects-triaged")
+@app.post("/defects-triaged")
 async def get_defects_triaged(repo: str = Query(...)):
     try:
         # Parse the repo_url to get owner and repo
