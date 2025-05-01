@@ -118,7 +118,7 @@ def analyze_repository():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/code-comment", methods=["POST"])
+@app.route("/api/github/code-comment-coverage", methods=["POST"])
 def analyze_repository_query():
     """Analyze repository for comment coverage via GET query parameters."""
     # owner = request.args.get("owner")
@@ -177,6 +177,6 @@ def get_coverage_data():
     return jsonify(data)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5006)
 
 

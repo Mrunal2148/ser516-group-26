@@ -3,12 +3,14 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - '*'
+      - Period-4
+      - Dev-Group-2
     tags:
       - '*'  
   pull_request:
     branches:
-      - '*'
+      - Period-3
+      - dev
   release:
     types: [created]  # This triggers on GitHub release creation
   workflow_dispatch:
@@ -31,13 +33,14 @@ jobs:
       - name: Build and Tag Docker Images
         run: |
           docker build -t defects-stats ./app/backend/defects-removed-service
+          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
           docker build -t app-python-backend ./app/backend/python-backend
           docker build -t app-code-comment-coverage-backend -f ./app/backend/python-backend/code-comment/Dockerfile ./app/backend
           docker build -t app-fan-in-fan-out-api ./app/backend/python-backend/fan-in-fan-out/api_gateway -f ./app/backend/python-backend/fan-in-fan-out/api_gateway/src/Dockerfile
-          docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/src/Dockerfile
-          docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/src/Dockerfile
+          docker build -t app-fan-in-service ./app/backend/python-backend/fan-in-fan-out/fan_in_service -f ./app/backend/python-backend/fan-in-fan-out/fan_in_service/Dockerfile
+          docker build -t app-fan-out-service ./app/backend/python-backend/fan-in-fan-out/fan_out_service -f ./app/backend/python-backend/fan-in-fan-out/fan_out_service/Dockerfile
           docker build -t app-github-service ./app/backend/python-backend/fan-in-fan-out/GitHub_service -f ./app/backend/python-backend/fan-in-fan-out/GitHub_service/src/Dockerfile
-          docker build -t fogindex ./app/fogindex -f ./app/fogindex/Dockerfile
+          docker build -t app-defects-triage ./app/backend/python-backend/defects-triaged -f ./app/backend/python-backend/defects-triaged/Dockerfile
 
       - name: Log in to Docker Hub
         run: |
@@ -58,6 +61,7 @@ jobs:
           docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
+          docker tag app-defects-triage mkapure/app-defects-triage:$VERSION
           docker tag fogindex mkapure/fogindex:$VERSION
           
           docker push mkapure/defects-stats:$VERSION
@@ -77,6 +81,7 @@ jobs:
           docker tag app-fan-in-service mkapure/app-fan-in-service:$VERSION
           docker tag app-fan-out-service mkapure/app-fan-out-service:$VERSION
           docker tag app-github-service mkapure/app-github-service:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
 
 
           docker push mkapure/defects-stats:latest
@@ -86,6 +91,7 @@ jobs:
           docker push mkapure/app-fan-in-service:latest
           docker push mkapure/app-fan-out-service:latest
           docker push mkapure/app-github-service:latest
+          docker push mkapure/fogindex:latest
 
 
           docker push mkapure/defects-stats:$VERSION
@@ -95,6 +101,8 @@ jobs:
           docker push mkapure/app-fan-in-service:$VERSION
           docker push mkapure/app-fan-out-service:$VERSION
           docker push mkapure/app-github-service:$VERSION
+          docker push mkapure/app-defects-triage:$VERSION
+          docker tag fogindex mkapure/fogindex:$VERSION
 
 
   test:
@@ -113,10 +121,6 @@ jobs:
         run: |
           pip install -r app/backend/python-backend/requirements.txt
           pip install pytest
-
-      - name: Run Code Comment Coverage Tests
-        run: |
-          cd app/backend/python-backend/code-comment
 
       - name: Run app.py tests
         run: |

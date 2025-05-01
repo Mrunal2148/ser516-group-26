@@ -13,21 +13,29 @@ services:
 
   defects-stats:
     build:
-      context: ./backend/defects-removed-service
+      context: ./backend
       dockerfile: Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
-
-      - "5000:5000"
-
+      - "8081:8080"
+      
     env_file:
       - .env
+
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}  # Securely pass the GitHub token
     networks:
       - app-network
 
+  fogindex:
+    build:
+      context: ./fogindex
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - shared-repos:/shared/repos
+    networks:
+      - app-network
 
   python-backend:
     build:
@@ -99,30 +107,32 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     networks:
       - app-network
+    volumes:
+      - ${HOME}/Downloads:/downloads
+  
+  clone_repo:
+      build:
+        context: ../
+        dockerfile: DockerfileMiddleware
+      ports:
+        - "6000:6000"
+      volumes:
+        - shared-repos:/shared/repos
+      networks:
+        - app-network
 
-  fogindex:
+  defects-triaged:
     build:
-      context: ./fogindex
+      context: ./backend/python-backend/defects-triaged
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-    volumes:
-      - shared-repos:/shared/repos
-    networks:
-      - app-network
-
-  middleware:
-    build:
-      context: ../
-      dockerfile: DockerfileMiddleware
-    ports:
-      - "6000:6000"
-    volumes:
-      - shared-repos:/shared/repos
+        - "5000:5000"
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - shared-repos:/shared/repos
     networks:
-      - app-network
+        - app-network
 
 networks:
   app-network:
