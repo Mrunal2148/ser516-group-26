@@ -29,7 +29,7 @@
 #     CMD ["python", "code_comment.py"]
     
 # Use a Maven image with OpenJDK 17
-FROM maven:3.8.1-openjdk-17 AS java-backend
+FROM maven:3.8.5-openjdk-17 AS java-backend
 
 WORKDIR /app
 
